@@ -2,17 +2,22 @@ module Game where
 
 import           Data.List
 
-data Card = Card { power :: Int
-                 , health  :: Int
-                 , cost  :: Int } deriving(Show, Eq)
+data Card = Card { power  :: Int
+                 , health :: Int
+                 , cost   :: Int } deriving(Show, Eq)
 
-data Player = Player { hand   :: [Card]
+data Player = Player { name   :: String
+                     , hand   :: [Card]
                      , public :: [Card]
-                     , deck :: [Card]
+                     , deck   :: [Card]
                      , mana   :: Int
-                     , hp :: Int } deriving(Show)
+                     , hp     :: Int } deriving(Show)
 
-data Board = Board Player Player
+instance Eq Player where
+  x == y = name x == name y
+
+data Board = Board { activePlayer   :: Player
+                   , inactivePlayer :: Player } deriving(Show, Eq)
 
 playCard :: Player -> Card -> Player
 playCard player card = player { public = card : public player
@@ -42,3 +47,13 @@ replace search new = map (\x -> if x == search then new else x)
 
 removeHp :: Player -> Int -> Player
 removeHp player x = player { hp = hp player - x }
+
+endTurn :: Board -> Board
+endTurn board = Board ((increaseMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
+
+drawDeckCard :: Player -> Player
+drawDeckCard player = let (x:xs) = deck player
+                      in player { hand = x : hand player, deck = xs }
+
+increaseMana :: Player -> Player
+increaseMana player = player { mana = mana player + 1 }

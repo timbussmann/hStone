@@ -66,7 +66,8 @@ spec = do
 
 
 createPlayer :: [Card] -> Player
-createPlayer publicCards = Player { hand = []
+createPlayer publicCards = Player { name = "player"
+                                  , hand = []
                                   , public = publicCards
                                   , deck = []
                                   , mana = 0
