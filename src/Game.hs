@@ -50,11 +50,14 @@ removeHp :: Player -> Int -> Player
 removeHp player x = player { hp = hp player - x }
 
 endTurn :: Board -> Board
-endTurn board = Board ((increaseMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
+endTurn board = Board ((refreshCurrentMana . increateTotalMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
 
 drawDeckCard :: Player -> Player
 drawDeckCard player = let (x:xs) = deck player
                       in player { hand = x : hand player, deck = xs }
 
-increaseMana :: Player -> Player
-increaseMana player = player { totalMana = totalMana player + 1 }
+increateTotalMana :: Player -> Player
+increateTotalMana player = player { totalMana = totalMana player + 1 }
+
+refreshCurrentMana :: Player -> Player
+refreshCurrentMana player = player { currentMana = totalMana player }

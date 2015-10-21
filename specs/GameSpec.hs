@@ -46,7 +46,7 @@ spec = do
                          , public = []
                          , deck = [ Card 1 1 1, Card 2 2 2 ]
                          , currentMana = 2
-                         , totalMana = 0
+                         , totalMana = 4
                          , hp = 0 }
 
     let board = Board { activePlayer = player1, inactivePlayer = player2 }
@@ -62,8 +62,8 @@ spec = do
     it "adds one mana to active player" $
       (totalMana . activePlayer) result `shouldBe` totalMana player2 + 1
 
-    it "restores active player's mana"
-      pending
+    it "restores active player's mana" $
+      (currentMana . activePlayer) result `shouldBe` (totalMana . activePlayer) result
 
     describe "active player draws card from deck" $ do
       it "adds top deck card into players hand" $
