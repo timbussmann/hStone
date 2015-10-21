@@ -15,7 +15,8 @@ spec = do
                         , hand = [card]
                         , public = []
                         , deck = []
-                        , mana = 10
+                        , currentMana = 10
+                        , totalMana = 10
                         , hp = 30 }
 
     let rPlayer = playCard player card
@@ -24,7 +25,7 @@ spec = do
       public rPlayer `shouldBe` [card]
 
     it "reduces the mana pool by the card's cost" $
-      mana rPlayer `shouldBe` 10 - cost card
+      currentMana rPlayer `shouldBe` 10 - cost card
 
     it "disables the card"
       pending
@@ -37,13 +38,15 @@ spec = do
                          , hand = []
                          , public = []
                          , deck = []
-                         , mana = 0
+                         , currentMana = 0
+                         , totalMana = 0
                          , hp = 0 }
     let player2 = Player { name = "p2"
                          , hand = []
                          , public = []
                          , deck = [ Card 1 1 1, Card 2 2 2 ]
-                         , mana = 2
+                         , currentMana = 2
+                         , totalMana = 0
                          , hp = 0 }
 
     let board = Board { activePlayer = player1, inactivePlayer = player2 }
@@ -57,7 +60,7 @@ spec = do
       activePlayer result `shouldBe` player2
 
     it "adds one mana to active player" $
-      (mana . activePlayer) result `shouldBe` mana player2 + 1
+      (totalMana . activePlayer) result `shouldBe` totalMana player2 + 1
 
     it "restores active player's mana"
       pending

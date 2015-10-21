@@ -6,12 +6,13 @@ data Card = Card { power  :: Int
                  , health :: Int
                  , cost   :: Int } deriving(Show, Eq)
 
-data Player = Player { name   :: String
-                     , hand   :: [Card]
-                     , public :: [Card]
-                     , deck   :: [Card]
-                     , mana   :: Int
-                     , hp     :: Int } deriving(Show)
+data Player = Player { name        :: String
+                     , hand        :: [Card]
+                     , public      :: [Card]
+                     , deck        :: [Card]
+                     , totalMana   :: Int
+                     , currentMana :: Int
+                     , hp          :: Int } deriving(Show)
 
 instance Eq Player where
   x == y = name x == name y
@@ -22,7 +23,7 @@ data Board = Board { activePlayer   :: Player
 playCard :: Player -> Card -> Player
 playCard player card = player { public = card : public player
                               , hand = delete card (hand player)
-                              , mana = mana player - cost card }
+                              , currentMana = currentMana player - cost card }
 
 minionAttack :: Card -> Card -> (Card, Card)
 minionAttack attacker target = (Card (power attacker) (health attacker - power target) (cost attacker)
@@ -56,4 +57,4 @@ drawDeckCard player = let (x:xs) = deck player
                       in player { hand = x : hand player, deck = xs }
 
 increaseMana :: Player -> Player
-increaseMana player = player { mana = mana player + 1 }
+increaseMana player = player { totalMana = totalMana player + 1 }

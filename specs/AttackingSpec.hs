@@ -70,5 +70,6 @@ createPlayer publicCards = Player { name = "player"
                                   , hand = []
                                   , public = publicCards
                                   , deck = []
-                                  , mana = 0
+                                  , currentMana = 0
+                                  , totalMana = 0
                                   , hp = 30 }
