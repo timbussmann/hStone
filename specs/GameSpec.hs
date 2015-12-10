@@ -58,7 +58,7 @@ spec = do
       inactivePlayer result `shouldBe` player1
 
     it "activates inactive player" $
-      activePlayer result `shouldBe` player2
+      name (activePlayer result) `shouldBe` name player2
 
     it "adds one mana to active player" $
       (totalMana . activePlayer) result `shouldBe` totalMana player2 + 1
@@ -113,6 +113,26 @@ spec = do
 
       it "active player wins the game" $
         result `shouldBe` Just (activePlayer board)
+
+  describe "making an action" $ do
+    describe "when game not finished" $ do
+      let board = createBoard
+      let modification b = b { activePlayer = (activePlayer b) { hp = 42 }}
+
+      let Right result = action board modification
+
+      it "returns the modified board" $
+        result `shouldBe` modification board
+
+    describe "when game finished" $ do
+      let board = createBoard
+      let modification b = b { activePlayer = (activePlayer b){ hp = 0} }
+
+      let Left result = action board modification
+
+      it "returns the winner" $
+        result `shouldBe` inactivePlayer board
+
 
 
 --TODO: use states to generate unique players, cards, etc

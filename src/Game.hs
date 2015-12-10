@@ -12,10 +12,7 @@ data Player = Player { name        :: String
                      , deck        :: [Card]
                      , totalMana   :: Int
                      , currentMana :: Int
-                     , hp          :: Int } deriving(Show)
-
-instance Eq Player where
-  x == y = name x == name y
+                     , hp          :: Int } deriving(Show, Eq)
 
 data Board = Board { activePlayer   :: Player
                    , inactivePlayer :: Player } deriving(Show, Eq)
@@ -69,3 +66,9 @@ evaluateWinner b
   | otherwise = Nothing
   where p1 = activePlayer b
         p2 = inactivePlayer b
+
+action :: Board -> (Board -> Board) -> Either Player Board
+action board action =
+  let newBoard = action board
+      winner = evaluateWinner newBoard
+  in maybe (Right newBoard) Left winner
