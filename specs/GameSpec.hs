@@ -4,6 +4,7 @@ import           Control.Exception (evaluate)
 import           Game
 import           Test.Hspec
 import           Test.QuickCheck
+import           TestUtils
 
 main = hspec spec
 
@@ -71,6 +72,48 @@ spec = do
 
       it "removes top deck card from the deck" $
         (head . deck) player2 `shouldSatisfy` flip notElem (deck $ activePlayer result)
+
+  describe "evaluating a winner" $ do
+    describe "when both players still have healthpoints" $ do
+      let board = Board
+                    { activePlayer = createPlayer { name = "p1", hp = 1}
+                    , inactivePlayer = createPlayer { name = "p2", hp = 30 }}
+
+      let result = evaluateWinner board
+
+      it "continues the game" $
+        result `shouldBe` Nothing
+
+    describe "when active player has no more health" $ do
+      let board = Board
+                    { activePlayer = createPlayer { name = "p1", hp = 0}
+                    , inactivePlayer = createPlayer { name = "p2", hp = 30 }}
+
+      let result = evaluateWinner board
+
+      it "inactive player wins the game" $
+        result `shouldBe` Just (inactivePlayer board)
+
+    describe "when inactive player has no more health" $ do
+      let board = Board
+                    { activePlayer = createPlayer { name = "p1", hp = 1}
+                    , inactivePlayer = createPlayer { name = "p2", hp = -1 }}
+
+      let result = evaluateWinner board
+
+      it "active player wins the game" $
+        result `shouldBe` Just (activePlayer board)
+
+    describe "when both players have no more health" $ do
+      let board = Board
+                    { activePlayer = createPlayer { name = "p1", hp = -3}
+                    , inactivePlayer = createPlayer { name = "p2", hp = -5 }}
+
+      let result = evaluateWinner board
+
+      it "active player wins the game" $
+        result `shouldBe` Just (activePlayer board)
+
 
 --TODO: use states to generate unique players, cards, etc
 --TODO: gets damage when no cards left

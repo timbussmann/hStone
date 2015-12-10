@@ -61,3 +61,11 @@ increateTotalMana player = player { totalMana = totalMana player + 1 }
 
 refreshCurrentMana :: Player -> Player
 refreshCurrentMana player = player { currentMana = totalMana player }
+
+evaluateWinner :: Board -> Maybe Player
+evaluateWinner b
+  | hp p2 <= 0 = Just p1
+  | hp p1 <= 0 = Just p2
+  | otherwise = Nothing
+  where p1 = activePlayer b
+        p2 = inactivePlayer b
