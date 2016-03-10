@@ -134,7 +134,6 @@ spec = do
         result `shouldBe` inactivePlayer board
 
 
-
 --TODO: use states to generate unique players, cards, etc
 --TODO: gets damage when no cards left
 -- note: sepc tests: how detailed, how many edge cases do you mind? e.g. draw card from deck: do you test that it doesn't draw all, that it keeps the existing hand card, and so on?
