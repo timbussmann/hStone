@@ -31,9 +31,9 @@ start = do
 
   putStrLn "enter your command. Type \"help\" to list available commands."
 
-  let handleInput = handle board
+  let handleInput = handle Nothing
 
-  Cli.repeat handleInput getLine
+  Cli.repeat (handleInput >=> (\(c, _) -> return c)) getLine
 
   putStrLn "Goodbye!"
   return ()
@@ -46,15 +46,18 @@ repeat check action = do
   when continue $ Cli.repeat check action
 
 
-handle :: Board -> String -> IO Bool
+handle :: Maybe Board -> String -> IO (Bool, Maybe Board)
 handle board "board" = do
   print board
-  return True
-handle _ "help" = do
+  return (True, board)
+handle b "help" = do
   putStrLn "exit = leave the game"
   putStrLn "board = shows the current board"
-  return True
-handle _ "exit" = return False
-handle _ c = do
+  return (True, b)
+handle b "exit" =
+  return (False, b)
+handle (Just b) "next" =
+  return (True, Just (endTurn b))
+handle b c = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
-  return True
+  return (True, b)
