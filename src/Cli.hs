@@ -87,18 +87,21 @@ printBoard b = do
     liftIO $ do
       putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
       putStrLn "Hand:"
-    mapM_ printCard (hand p1)
+    printCards (hand p1)
     liftIO $ putStrLn "Public:"
-    mapM_ printCard (public p2)
+    printCards (public p2)
     liftIO $ do
       putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (hp p2) (currentMana p2) (totalMana p2)
       putStrLn "Public:"
-    mapM_ printCard (public p2)
+    printCards (public p2)
 
-printCard :: Card -> StateT Int IO ()
-printCard card = do
-  i <- getNextId
-  lift $ putStrLn $ printf "[%d] %d HP %d AP" i (health card) (power card)
+printCards :: [Card] -> StateT Int IO ()
+printCards [] = liftIO (putStrLn "-")
+printCards cards = mapM_ (
+  \c -> do
+    i <- getNextId
+    lift $ putStrLn $ printf "[%d] %d HP %d AP" i (health c) (power c))
+  cards
 
 getNextId :: (Monad m) => StateT Int m Int
 getNextId = do
