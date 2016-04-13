@@ -5,6 +5,7 @@ import System.IO
 import Control.Monad
 import Text.Printf
 import Data.List.Split
+import Control.Monad.State
 
 start = do
   putStrLn "Welcome to hStone"
@@ -63,7 +64,7 @@ handle Nothing _ = do
   putStrLn "No board found. Please start a new game."
   return (True, Nothing)
 handle (Just board) ("board":_) = do
-  print board
+  printBoard board
   return (True, Just board)
 handle (Just b) ("end":_) =
   return (True, Just (endTurn b))
@@ -72,6 +73,33 @@ handle (Just b) ("attack":_)=
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
   return (True, b)
+
+printBoard :: Board -> IO ()
+printBoard b = do
+  let p1 = activePlayer b
+  let p2 = inactivePlayer b
+  flip evalStateT 1 $ do
+    liftIO $ do
+      printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
+      putStrLn "Hand:"
+    mapM_ printCard (hand p1)
+    liftIO $ putStrLn "Public:"
+    mapM_ printCard (hand p2)
+    liftIO $ do
+      putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (hp p2) (currentMana p2) (totalMana p2)
+      putStrLn "Public:"
+    mapM_ printCard (hand p2)
+
+printCard :: Card -> StateT Int IO ()
+printCard card = do
+  i <- getNextId
+  lift $ putStrLn $ printf "[%d] %d HP %d AP" i (health card) (power card)
+
+getNextId :: (Monad m) => StateT Int m Int
+getNextId = do
+  i <- get
+  put (i + 1)
+  return i
 
 createNewBoard :: Board
 createNewBoard =

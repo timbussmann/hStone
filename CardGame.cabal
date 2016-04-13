@@ -19,6 +19,6 @@ executable CardGame
   main-is: main.hs
   -- other-modules: Game
   -- other-extensions:
-  build-depends:       base >=4.7 && <4.8, hspec, QuickCheck, monad-loops, split
+  build-depends:       base >=4.7 && <4.8, hspec, QuickCheck, split, mtl
   hs-source-dirs: src
   default-language:    Haskell2010
