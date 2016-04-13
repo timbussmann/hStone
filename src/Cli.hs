@@ -9,39 +9,15 @@ import Control.Monad.State
 
 data Selectable a = Selectable { id :: Int, item :: a}
 
+start :: IO ()
 start = do
   putStrLn "Welcome to hStone"
-  let player1 = Player { name = "player1"
-                      , hand = []
-                      , public = []
-                      , deck = [ Card 1 1 1
-                               , Card 2 2 2
-                               , Card 3 3 3
-                      ]
-                    , totalMana = 0
-                    , currentMana= 0
-                    , hp = 0}
-  let player2 = Player { name = "player2"
-                      , hand = []
-                      , public = []
-                      , deck = [ Card 1 1 1
-                               , Card 2 2 2
-                               , Card 3 3 3
-                      ]
-                    , totalMana = 0
-                    , currentMana= 0
-                    , hp = 0}
-  let board = Board player1 player2
-
   putStrLn "enter your command. Type \"help\" to list available commands."
-
-  let handleInput = handle Nothing
-
   --Cli.repeat (handleInput >=> (\(c, _) -> return c)) (\b -> getLine >>= (\i -> handle b i)
   loop (\b -> getLine >>= (\i -> handle b (splitOn " " i))) Nothing
-
   putStrLn "Goodbye!"
   return ()
+
 
 loop :: (Maybe Board -> IO (Bool, Maybe Board)) -> Maybe Board -> IO ()
 loop action board = do
