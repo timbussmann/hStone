@@ -7,6 +7,8 @@ import Text.Printf
 import Data.List.Split
 import Control.Monad.State
 
+data Selectable a = Selectable { id :: Int, item :: a}
+
 start = do
   putStrLn "Welcome to hStone"
   let player1 = Player { name = "player1"
@@ -47,6 +49,7 @@ loop action board = do
   when (fst result) $ loop action (snd result)
 
 handle :: Maybe Board -> [String] -> IO (Bool, Maybe Board)
+handle b ("":_) = return (True, b)
 handle b ("help":_) = do
   putStrLn "exit = leave the game"
   putStrLn "board = shows the current board"
@@ -66,8 +69,10 @@ handle Nothing _ = do
 handle (Just board) ("board":_) = do
   printBoard board
   return (True, Just board)
-handle (Just b) ("end":_) =
-  return (True, Just (endTurn b))
+handle (Just b) ("end":_) = do
+  let b' = endTurn b
+  putStrLn $ printf "%s's turn!" (name $ activePlayer b')
+  return (True, Just b')
 handle (Just b) ("attack":_)=
   return (True, Just b)
 handle b (c:_) = do
@@ -80,15 +85,15 @@ printBoard b = do
   let p2 = inactivePlayer b
   flip evalStateT 1 $ do
     liftIO $ do
-      printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
+      putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
       putStrLn "Hand:"
     mapM_ printCard (hand p1)
     liftIO $ putStrLn "Public:"
-    mapM_ printCard (hand p2)
+    mapM_ printCard (public p2)
     liftIO $ do
       putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (hp p2) (currentMana p2) (totalMana p2)
       putStrLn "Public:"
-    mapM_ printCard (hand p2)
+    mapM_ printCard (public p2)
 
 printCard :: Card -> StateT Int IO ()
 printCard card = do
