@@ -59,8 +59,11 @@ handle (Just b) ("put":cardId:_) = do
   putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
   let b' = playCard b cardToPlay
   return (True, Just b')
-handle (Just b) ("attack":a:t) =
-  return (True, Just b)
+handle (Just b) ("attack":attackerId:targetId:_) = do
+  let attacker = getCardById b attackerId
+  let target = getCardById b targetId
+  let b' = attack b attacker target
+  return (True, Just b')
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
   return (True, b)
@@ -95,6 +98,7 @@ getCardById b identifier = let (prefix, index) = split identifier
                                  getCards x
                                   | x == handPrefix = hand $ activePlayer b
                                   | x == playerPublicPrefix = public $ activePlayer b
+                                  | x == enemyPublicPrefix = public $ inactivePlayer b
 
 createNewBoard :: Board
 createNewBoard =
