@@ -1,11 +1,11 @@
 module Cli where
 
-import Game
-import System.IO
-import Control.Monad
-import Text.Printf
-import Data.List.Split
-import Control.Monad.State
+import           Control.Monad
+import           Control.Monad.State
+import           Data.List.Split
+import           Game
+import           System.IO
+import           Text.Printf
 
 data Selectable a = Selectable { id :: Int, item :: a}
 
