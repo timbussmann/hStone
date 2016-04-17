@@ -9,6 +9,10 @@ import Control.Monad.State
 
 data Selectable a = Selectable { id :: Int, item :: a}
 
+handPrefix = 'h'
+playerPublicPrefix = 'p'
+enemyPublicPrefix = 'e'
+
 start :: IO ()
 start = do
   putStrLn "Welcome to hStone"
@@ -31,6 +35,7 @@ handle b ("help":_) = do
   putStrLn "board = shows the current board"
   putStrLn "start = start a new game"
   putStrLn "end = end the current turn"
+  putStrLn "put {cardId} = puts the selected card on the public board"
   putStrLn "attack {attackerId} {targetId} = attacks the target with the given attacker"
   return (True, b)
 handle b ("exit":_) =
@@ -49,7 +54,12 @@ handle (Just b) ("end":_) = do
   let b' = endTurn b
   putStrLn $ printf "%s's turn!" (name $ activePlayer b')
   return (True, Just b')
-handle (Just b) ("attack":_)=
+handle (Just b) ("put":cardId:_) = do
+  let cardToPlay = getCardById b cardId
+  putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
+  let b' = playCard b cardToPlay
+  return (True, Just b')
+handle (Just b) ("attack":a:t) =
   return (True, Just b)
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
@@ -59,31 +69,32 @@ printBoard :: Board -> IO ()
 printBoard b = do
   let p1 = activePlayer b
   let p2 = inactivePlayer b
-  flip evalStateT 1 $ do
-    liftIO $ do
-      putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
-      putStrLn "Hand:"
-    printCards (hand p1)
-    liftIO $ putStrLn "Public:"
-    printCards (public p2)
-    liftIO $ do
-      putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (hp p2) (currentMana p2) (totalMana p2)
-      putStrLn "Public:"
-    printCards (public p2)
+  putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
+  putStrLn "Hand:"
+  printCards (hand p1) handPrefix
+  putStrLn "Public:"
+  printCards (public p1) playerPublicPrefix
+  putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (hp p2) (currentMana p2) (totalMana p2)
+  putStrLn "Public:"
+  printCards (public p2) enemyPublicPrefix
 
-printCards :: [Card] -> StateT Int IO ()
-printCards [] = liftIO (putStrLn "-")
-printCards cards = mapM_ (
-  \c -> do
-    i <- getNextId
-    lift $ putStrLn $ printf "[%d] %d HP %d AP" i (health c) (power c))
+printCards :: [Card] -> Char -> IO ()
+printCards [] _ = putStrLn "-"
+printCards cards prefix = foldM_
+  (\i c -> putStrLn (showCard c prefix i) >>= \_ -> return (i + 1))
+  1
   cards
 
-getNextId :: (Monad m) => StateT Int m Int
-getNextId = do
-  i <- get
-  put (i + 1)
-  return i
+showCard :: Card -> Char -> Int -> String
+showCard c prefix i = printf "[%c%d] %d HP %d AP" prefix i (health c) (power c)
+
+getCardById :: Board -> String -> Card
+getCardById b identifier = let (prefix, index) = split identifier
+                           in getCards prefix !! (index - 1)
+                           where split (x:xs) = (x, read xs :: Int)
+                                 getCards x
+                                  | x == handPrefix = hand $ activePlayer b
+                                  | x == playerPublicPrefix = public $ activePlayer b
 
 createNewBoard :: Board
 createNewBoard =
