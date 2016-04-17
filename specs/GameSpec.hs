@@ -12,17 +12,19 @@ spec :: Spec
 spec = do
   describe "playing a minion card" $ do
     let card = Card 1 3 5
-    let player = Player { name = ""
+    let player1 = Player { name = ""
                         , hand = [card]
                         , public = []
                         , deck = []
                         , currentMana = 10
                         , totalMana = 10
                         , hp = 30 }
+    let board = Board player1 createPlayer
 
-    let rPlayer = playCard player card
+    let rBoard = playCard board card
+    let rPlayer = activePlayer rBoard
 
-    it "places the card on the player's board" $
+    it "places the card on the active player's board" $
       public rPlayer `shouldBe` [card]
 
     it "reduces the mana pool by the card's cost" $

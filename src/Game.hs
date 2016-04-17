@@ -17,10 +17,12 @@ data Player = Player { name        :: String
 data Board = Board { activePlayer   :: Player
                    , inactivePlayer :: Player } deriving(Show, Eq)
 
-playCard :: Player -> Card -> Player
-playCard player card = player { public = card : public player
-                              , hand = delete card (hand player)
-                              , currentMana = currentMana player - cost card }
+playCard :: Board -> Card -> Board
+playCard board card = let p = activePlayer board
+                          p' = p { public = card : public p
+                              , hand = delete card (hand p)
+                              , currentMana = currentMana p - cost card }
+                      in board { activePlayer = p'}
 
 minionAttack :: Card -> Card -> (Card, Card)
 minionAttack attacker target = (Card (power attacker) (health attacker - power target) (cost attacker)
