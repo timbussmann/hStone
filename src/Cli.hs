@@ -6,6 +6,7 @@ import           Data.List.Split
 import           Game
 import           System.IO
 import           Text.Printf
+import           Data.Maybe
 
 data Selectable a = Selectable { id :: Int, item :: a}
 
@@ -18,15 +19,28 @@ start = do
   putStrLn "Welcome to hStone"
   putStrLn "enter your command. Type \"help\" to list available commands."
   --Cli.repeat (handleInput >=> (\(c, _) -> return c)) (\b -> getLine >>= (\i -> handle b i)
-  loop (\b -> getLine >>= (\i -> handle b (splitOn " " i))) Nothing
-  putStrLn "Goodbye!"
-  return ()
+  --loop (\b -> getLine >>= (\i -> handle b (splitOn " " i))) Nothing
+  loop (\b -> do
+    input <- getLine
+    b' <- handle b (splitOn " " input)
+    checkForWinner b')
+    Nothing
 
 
 loop :: (Maybe Board -> IO (Bool, Maybe Board)) -> Maybe Board -> IO ()
 loop action board = do
   result <- action board
   when (fst result) $ loop action (snd result)
+
+checkForWinner :: (Bool, Maybe Board) -> IO (Bool, Maybe Board)
+checkForWinner x@(True, Just b) =
+  let winner = evaluateWinner b in
+  if isJust winner
+    then announceWinner winner >>= \_ -> return (False, Just b)
+    else return x
+  where
+    announceWinner (Just w) = putStrLn $ printf "Player %s wins!" (name w)
+checkForWinner x = return x
 
 handle :: Maybe Board -> [String] -> IO (Bool, Maybe Board)
 handle b ("":_) = return (True, b)
@@ -38,7 +52,8 @@ handle b ("help":_) = do
   putStrLn "put {cardId} = puts the selected card on the public board"
   putStrLn "attack {attackerId} {targetId} = attacks the target with the given attacker"
   return (True, b)
-handle b ("exit":_) =
+handle b ("exit":_) = do
+  putStrLn "Goodbye!"
   return (False, b)
 handle Nothing ("start":_) = do
   let board = endTurn createNewBoard
@@ -113,7 +128,7 @@ createNewBoard =
                       ]
                     , totalMana = 0
                     , currentMana= 0
-                    , hp = 0};
+                    , hp = 5};
     player2 = Player { name = "player2"
                       , hand = []
                       , public = []
@@ -123,6 +138,6 @@ createNewBoard =
                       ]
                     , totalMana = 0
                     , currentMana= 0
-                    , hp = 0}
+                    , hp = 5}
   }
   in Board player1 player2
