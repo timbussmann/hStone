@@ -52,8 +52,10 @@ endTurn :: Board -> Board
 endTurn board = Board ((refreshCurrentMana . increaseTotalMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
 
 drawDeckCard :: Player -> Player
-drawDeckCard player = let (x:xs) = deck player
-                      in player { hand = x : hand player, deck = xs }
+drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand player)
+                      in player { hand = newHand, deck = newDeck }
+                      where tryMove [] dest = ([], dest)
+                            tryMove (x:xs) dest = (xs, x:dest)
 
 increaseTotalMana :: Player -> Player
 increaseTotalMana player = player { totalMana = totalMana player + 1 }

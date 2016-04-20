@@ -72,6 +72,27 @@ spec = do
       (head . hand . activePlayer) result `shouldBe` (head . deck) player2
       (head . deck) player2 `shouldSatisfy` flip notElem (deck $ activePlayer result)
 
+  describe "when player has no more cards in deck" $ do
+    let board = Board createPlayer createPlayer
+
+    let result = endTurn board
+    let result' = endTurn result
+    let result'' = endTurn result'
+
+    it "damages the player when his turn begins" $ do
+      (hp . activePlayer) result `shouldBe` (hp . inactivePlayer) board - 4
+      -- no damage on other player's turn
+      (hp . inactivePlayer) result' `shouldBe` (hp . activePlayer) result
+      -- players turn again
+      (hp . activePlayer) result'' `shouldBe` (hp . inactivePlayer) board - 8
+
+    it "doubles damage on every turn"
+      pending -- requires an additional state therefore I keep it simple for now
+
+    it "player receives no new cards" $ do
+      (hand . activePlayer) result `shouldBe` []
+      (hand . activePlayer) result'' `shouldBe` []
+
   describe "evaluating a winner" $ do
     describe "when both players still have healthpoints" $ do
       let board = Board
