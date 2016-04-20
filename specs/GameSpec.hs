@@ -68,12 +68,9 @@ spec = do
     it "restores active player's mana" $
       (currentMana . activePlayer) result `shouldBe` (totalMana . activePlayer) result
 
-    describe "active player draws card from deck" $ do
-      it "adds top deck card into players hand" $
-        (head . hand . activePlayer) result `shouldBe` (head . deck) player2
-
-      it "removes top deck card from the deck" $
-        (head . deck) player2 `shouldSatisfy` flip notElem (deck $ activePlayer result)
+    it "active player draws card from deck" $ do
+      (head . hand . activePlayer) result `shouldBe` (head . deck) player2
+      (head . deck) player2 `shouldSatisfy` flip notElem (deck $ activePlayer result)
 
   describe "evaluating a winner" $ do
     describe "when both players still have healthpoints" $ do
@@ -138,4 +135,5 @@ spec = do
 
 --TODO: use states to generate unique players, cards, etc
 --TODO: gets damage when no cards left
--- note: sepc tests: how detailed, how many edge cases do you mind? e.g. draw card from deck: do you test that it doesn't draw all, that it keeps the existing hand card, and so on?
+--TODO: cards with buffs, effects
+--TODO: spell cards (non-minions)
