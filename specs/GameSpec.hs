@@ -155,6 +155,5 @@ spec = do
 
 
 --TODO: use states to generate unique players, cards, etc
---TODO: gets damage when no cards left
 --TODO: cards with buffs, effects
 --TODO: spell cards (non-minions)

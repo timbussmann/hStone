@@ -53,7 +53,9 @@ endTurn board = Board ((refreshCurrentMana . increaseTotalMana . drawDeckCard) $
 
 drawDeckCard :: Player -> Player
 drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand player)
-                      in player { hand = newHand, deck = newDeck }
+                      in player { hand = newHand
+                                , deck = newDeck
+                                , hp = if newHand == hand player then hp player - 4 else hp player}
                       where tryMove [] dest = ([], dest)
                             tryMove (x:xs) dest = (xs, x:dest)
 
