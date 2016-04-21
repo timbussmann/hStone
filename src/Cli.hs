@@ -8,8 +8,6 @@ import           System.IO
 import           Text.Printf
 import           Data.Maybe
 
-data Selectable a = Selectable { id :: Int, item :: a}
-
 handPrefix = 'h'
 playerPublicPrefix = 'p'
 enemyPublicPrefix = 'e'
