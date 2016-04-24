@@ -53,7 +53,7 @@ spec = do
     it "keeps other minions on the owner's board" $
      public player1 `shouldSatisfy` elem otherCard
 
-  describe "when attacking enemy player" $ do
+  describe "when attacking enemy hero" $ do
     let attacker = Card { power=5, health=5, cost=0 }
     let targetPlayer = createPlayer
     let board = Board
@@ -62,5 +62,8 @@ spec = do
 
     let (Board player1 player2) = attackPlayer board attacker targetPlayer
 
-    it "reduces attacked players health" $
+    it "reduces attacked hero's health" $
       (health . hero) player2 `shouldBe` (health . hero) targetPlayer - power attacker
+
+    it "reduces attacker's health by hero's power"
+      pending
