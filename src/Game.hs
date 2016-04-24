@@ -2,9 +2,17 @@ module Game where
 
 import           Data.List
 
-data Card = Card { power  :: Int
+class Unit a where
+  damage :: a -> Int -> a
+  power :: a -> Int
+
+data Card = Card { cpower  :: Int
                  , health :: Int
                  , cost   :: Int } deriving(Show, Eq)
+
+instance Unit Card where
+  damage u x = u { health = health u - x }
+  power = cpower
 
 data Player = Player { name        :: String
                      , hand        :: [Card]
@@ -24,9 +32,9 @@ playCard board card = let p = activePlayer board
                               , currentMana = currentMana p - cost card }
                       in board { activePlayer = p'}
 
-minionAttack :: Card -> Card -> (Card, Card)
-minionAttack attacker target = (Card (power attacker) (health attacker - power target) (cost attacker)
-                               ,Card (power target) (health target - power attacker) (cost target))
+minionAttack :: (Unit u) => u -> u -> (u, u)
+minionAttack attacker target = ( damage attacker (power target)
+                               , damage target (power attacker))
 
 attack :: Board -> Card -> Card -> Board
 attack (Board player1 player2) attacker target = let (a, t) = minionAttack attacker target in
