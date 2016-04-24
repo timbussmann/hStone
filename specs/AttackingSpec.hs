@@ -13,7 +13,7 @@ spec = do
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
 
-    let (Board player1 player2) = attack board attacker target
+    let (Board player1 player2) = attack attacker target board
 
     it "reduces target's health by attacker's power" $
       (health . head . public) player2 `shouldBe` health target - power attacker
@@ -29,7 +29,7 @@ spec = do
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
 
-    let (Board player1 player2) = attack board attacker target
+    let (Board player1 player2) = attack attacker target board
 
     it "removes attacked minion from the owner's board" $
       public player2 `shouldSatisfy` notElem target
@@ -45,7 +45,7 @@ spec = do
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
 
-    let (Board player1 player2) = attack board attacker target
+    let (Board player1 player2) = attack attacker target board
 
     it "removes attacking minion from the owner's board" $
       public player1 `shouldSatisfy` notElem target

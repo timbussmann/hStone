@@ -20,8 +20,12 @@ start = do
   --loop (\b -> getLine >>= (\i -> handle b (splitOn " " i))) Nothing
   loop (\b -> do
     input <- getLine
-    b' <- handle b (splitOn " " input)
-    checkForWinner b')
+    let commands = splitOn " " input
+    if head commands == "exit"
+      then return (False, b)
+      else do
+        b' <- handle b commands
+        checkForWinner b')
     Nothing
 
 
@@ -30,18 +34,16 @@ loop action board = do
   result <- action board
   when (fst result) $ loop action (snd result)
 
-checkForWinner :: (Bool, Maybe Board) -> IO (Bool, Maybe Board)
-checkForWinner x@(True, Just b) =
-  let winner = evaluateWinner b in
-  if isJust winner
-    then announceWinner winner >>= \_ -> return (False, Just b)
-    else return x
+checkForWinner :: Maybe (Board, Maybe Player) -> IO (Bool, Maybe Board)
+checkForWinner x@(Just (b, Just p)) = do
+  announceWinner p
+  return (False, Just b)
   where
-    announceWinner (Just w) = putStrLn $ printf "Player %s wins!" (name w)
-checkForWinner x = return x
+    announceWinner w = putStrLn $ printf "Player %s wins!" (name w)
+checkForWinner x = return (True, maybe Nothing (Just . fst) x)
 
-handle :: Maybe Board -> [String] -> IO (Bool, Maybe Board)
-handle b ("":_) = return (True, b)
+handle :: Maybe Board -> [String] -> IO (Maybe (Board, Maybe Player))
+handle b ("":_) = return (b >>= \x -> Just (x, Nothing))
 handle b ("help":_) = do
   putStrLn "exit = leave the game"
   putStrLn "board = shows the current board"
@@ -49,37 +51,34 @@ handle b ("help":_) = do
   putStrLn "end = end the current turn"
   putStrLn "put {cardId} = puts the selected card on the public board"
   putStrLn "attack {attackerId} {targetId} = attacks the target with the given attacker"
-  return (True, b)
-handle b ("exit":_) = do
-  putStrLn "Goodbye!"
-  return (False, b)
+  return (b >>= \x -> Just(x, Nothing))
 handle Nothing ("start":_) = do
   let board = endTurn createNewBoard
   putStrLn "Started new game!"
-  return (True, Just board)
+  return $ Just (board, Nothing)
 handle Nothing _ = do
   putStrLn "No board found. Please start a new game."
-  return (True, Nothing)
+  return Nothing
 handle (Just board) ("board":_) = do
   printBoard board
-  return (True, Just board)
+  return $ Just (board, Nothing)
 handle (Just b) ("end":_) = do
-  let b' = endTurn b
-  putStrLn $ printf "%s's turn!" (name $ activePlayer b')
-  return (True, Just b')
+  let b' = boardAction b endTurn
+  putStrLn $ printf "%s's turn!" (name $ activePlayer $ fst b')
+  return $ Just b'
 handle (Just b) ("put":cardId:_) = do
   let cardToPlay = getCardById b cardId
   putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
-  let b' = playCard b cardToPlay
-  return (True, Just b')
+  let b' = boardAction b (playCard cardToPlay)
+  return $ Just b'
 handle (Just b) ("attack":attackerId:targetId:_) = do
   let attacker = getCardById b attackerId
   let target = getCardById b targetId
-  let b' = attack b attacker target
-  return (True, Just b')
+  let b' = boardAction b (attack attacker target)
+  return $ Just b'
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
-  return (True, b)
+  return (b >>= (\x -> Just (x, Nothing)))
 
 printBoard :: Board -> IO ()
 printBoard b = do

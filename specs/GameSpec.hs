@@ -19,7 +19,7 @@ spec = do
                                , totalMana = 10 }
     let board = Board player1 createPlayer
 
-    let rBoard = playCard board card
+    let rBoard = playCard card board
     let rPlayer = activePlayer rBoard
 
     it "places the card on the active player's board" $

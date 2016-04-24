@@ -25,8 +25,12 @@ data Player = Player { name        :: String
 data Board = Board { activePlayer   :: Player
                    , inactivePlayer :: Player } deriving(Show, Eq)
 
-playCard :: Board -> Card -> Board
-playCard board card = let p = activePlayer board
+boardAction :: Board -> (Board -> Board) -> (Board, Maybe Player)
+boardAction board action = let b' = action board
+                           in (b', evaluateWinner b')
+
+playCard :: Card -> Board -> Board
+playCard card board = let p = activePlayer board
                           p' = p { public = card : public p
                               , hand = delete card (hand p)
                               , currentMana = currentMana p - cost card }
@@ -36,8 +40,8 @@ minionAttack :: (Unit u) => u -> u -> (u, u)
 minionAttack attacker target = ( damage attacker (power target)
                                , damage target (power attacker))
 
-attack :: Board -> Card -> Card -> Board
-attack (Board player1 player2) attacker target = let (a, t) = minionAttack attacker target in
+attack :: Card -> Card -> Board -> Board
+attack attacker target (Board player1 player2) = let (a, t) = minionAttack attacker target in
     Board (updatePublicCards player1 attacker a) (updatePublicCards player2 target t)
     where
       updatePublicCards player original new
