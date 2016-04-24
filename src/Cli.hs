@@ -85,12 +85,12 @@ printBoard :: Board -> IO ()
 printBoard b = do
   let p1 = activePlayer b
   let p2 = inactivePlayer b
-  putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (hp p1) (currentMana p1) (totalMana p1)
+  putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (health (hero p1)) (currentMana p1) (totalMana p1)
   putStrLn "Hand:"
   printCards (hand p1) handPrefix
   putStrLn "Public:"
   printCards (public p1) playerPublicPrefix
-  putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (hp p2) (currentMana p2) (totalMana p2)
+  putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (health (hero p2)) (currentMana p2) (totalMana p2)
   putStrLn "Public:"
   printCards (public p2) enemyPublicPrefix
 
@@ -126,7 +126,7 @@ createNewBoard =
                       ]
                     , totalMana = 0
                     , currentMana= 0
-                    , hp = 5};
+                    , hero = Card 0 5 0 };
     player2 = Player { name = "player2"
                       , hand = []
                       , public = []
@@ -136,6 +136,6 @@ createNewBoard =
                       ]
                     , totalMana = 0
                     , currentMana= 0
-                    , hp = 5}
+                    , hero = Card 0 5 0 };
   }
   in Board player1 player2

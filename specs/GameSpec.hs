@@ -16,8 +16,7 @@ spec = do
                                , public = []
                                , deck = []
                                , currentMana = 10
-                               , totalMana = 10
-                               , hp = 30 }
+                               , totalMana = 10 }
     let board = Board player1 createPlayer
 
     let rBoard = playCard board card
@@ -36,20 +35,18 @@ spec = do
       hand rPlayer `shouldBe` []
 
   describe "ending a turn" $ do
-    let player1 = Player { name = "p1"
+    let player1 = createPlayer { name = "p1"
                          , hand = []
                          , public = []
                          , deck = []
                          , currentMana = 0
-                         , totalMana = 0
-                         , hp = 0 }
-    let player2 = Player { name = "p2"
+                         , totalMana = 0 }
+    let player2 = createPlayer { name = "p2"
                          , hand = []
                          , public = []
                          , deck = [ Card 1 1 1, Card 2 2 2 ]
                          , currentMana = 2
-                         , totalMana = 4
-                         , hp = 0 }
+                         , totalMana = 4 }
 
     let board = Board { activePlayer = player1, inactivePlayer = player2 }
 
@@ -79,11 +76,11 @@ spec = do
     let result'' = endTurn result'
 
     it "damages the player when his turn begins" $ do
-      (hp . activePlayer) result `shouldBe` (hp . inactivePlayer) board - 4
+      (health . hero . activePlayer) result `shouldBe` (health . hero . inactivePlayer) board - 4
       -- no damage on other player's turn
-      (hp . inactivePlayer) result' `shouldBe` (hp . activePlayer) result
+      (health . hero . inactivePlayer) result' `shouldBe` (health . hero . activePlayer) result
       -- players turn again
-      (hp . activePlayer) result'' `shouldBe` (hp . inactivePlayer) board - 8
+      (health . hero . activePlayer) result'' `shouldBe` (health . hero . inactivePlayer) board - 8
 
     it "doubles damage on every turn"
       pending -- requires an additional state therefore I keep it simple for now
@@ -95,8 +92,8 @@ spec = do
   describe "evaluating a winner" $ do
     describe "when both players still have healthpoints" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hp = 1}
-                    , inactivePlayer = createPlayer { name = "p2", hp = 30 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0}
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 }}
 
       let result = evaluateWinner board
 
@@ -105,8 +102,8 @@ spec = do
 
     describe "when active player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hp = 0}
-                    , inactivePlayer = createPlayer { name = "p2", hp = 30 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 0 0}
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0}}
 
       let result = evaluateWinner board
 
@@ -115,8 +112,8 @@ spec = do
 
     describe "when inactive player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hp = 1}
-                    , inactivePlayer = createPlayer { name = "p2", hp = -1 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0}
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-1) 0}}
 
       let result = evaluateWinner board
 
@@ -125,8 +122,8 @@ spec = do
 
     describe "when both players have no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hp = -3}
-                    , inactivePlayer = createPlayer { name = "p2", hp = -5 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 (-3) 0 }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-5) 0 }}
 
       let result = evaluateWinner board
 
@@ -136,7 +133,7 @@ spec = do
   describe "making an action" $ do
     describe "when game not finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b) { hp = 42 }}
+      let modification b = b { activePlayer = (activePlayer b) { hero = Card 0 42 0 }}
 
       let Right result = action board modification
 
@@ -145,7 +142,7 @@ spec = do
 
     describe "when game finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b){ hp = 0} }
+      let modification b = b { activePlayer = (activePlayer b){ hero = Card 0 0 0 } }
 
       let Left result = action board modification
 

@@ -10,9 +10,9 @@ data Player = Player { name        :: String
                      , hand        :: [Card]
                      , public      :: [Card]
                      , deck        :: [Card]
+                     , hero        :: Card
                      , totalMana   :: Int
-                     , currentMana :: Int
-                     , hp          :: Int } deriving(Show, Eq)
+                     , currentMana :: Int } deriving(Show, Eq)
 
 data Board = Board { activePlayer   :: Player
                    , inactivePlayer :: Player } deriving(Show, Eq)
@@ -45,16 +45,17 @@ replace :: Card -> Card -> [Card] -> [Card]
 replace search new = map (\x -> if x == search then new else x)
 
 removeHp :: Player -> Int -> Player
-removeHp player x = player { hp = hp player - x }
+removeHp player x = let h = hero player
+                        h' = h { health = health h - x}
+                    in player { hero = h' }
 
 endTurn :: Board -> Board
 endTurn board = Board ((refreshCurrentMana . increaseTotalMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
 
 drawDeckCard :: Player -> Player
 drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand player)
-                      in player { hand = newHand
-                                , deck = newDeck
-                                , hp = if newHand == hand player then hp player - 4 else hp player}
+                          player' = player { hand = newHand , deck = newDeck }
+                      in if newHand == hand player then removeHp player' 4 else player'
                       where tryMove [] dest = ([], dest)
                             tryMove (x:xs) dest = (xs, x:dest)
 
@@ -66,8 +67,8 @@ refreshCurrentMana player = player { currentMana = totalMana player }
 
 evaluateWinner :: Board -> Maybe Player
 evaluateWinner b
-  | hp p2 <= 0 = Just p1
-  | hp p1 <= 0 = Just p2
+  | health (hero p2) <= 0 = Just p1
+  | health (hero p1) <= 0 = Just p2
   | otherwise = Nothing
   where p1 = activePlayer b
         p2 = inactivePlayer b

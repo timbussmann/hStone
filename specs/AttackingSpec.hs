@@ -63,4 +63,4 @@ spec = do
     let (Board player1 player2) = attackPlayer board attacker targetPlayer
 
     it "reduces attacked players health" $
-      hp player2 `shouldBe` hp targetPlayer - power attacker
+      (health . hero) player2 `shouldBe` (health . hero) targetPlayer - power attacker
