@@ -12,13 +12,12 @@ spec :: Spec
 spec = do
   describe "playing a minion card" $ do
     let card = Card 1 3 5
-    let player1 = Player { name = ""
-                        , hand = [card]
-                        , public = []
-                        , deck = []
-                        , currentMana = 10
-                        , totalMana = 10
-                        , hp = 30 }
+    let player1 = createPlayer { hand = [card]
+                               , public = []
+                               , deck = []
+                               , currentMana = 10
+                               , totalMana = 10
+                               , hp = 30 }
     let board = Board player1 createPlayer
 
     let rBoard = playCard board card
@@ -153,7 +152,7 @@ spec = do
       it "returns the winner" $
         result `shouldBe` inactivePlayer board
 
-
+--TODO: input verification
 --TODO: use states to generate unique players, cards, etc
 --TODO: cards with buffs, effects
 --TODO: spell cards (non-minions)

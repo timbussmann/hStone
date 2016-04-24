@@ -27,7 +27,6 @@ playCard board card = let p = activePlayer board
 minionAttack :: Card -> Card -> (Card, Card)
 minionAttack attacker target = (Card (power attacker) (health attacker - power target) (cost attacker)
                                ,Card (power target) (health target - power attacker) (cost target))
--- should the public hand be on the board instead of the player?
 
 attack :: Board -> Card -> Card -> Board
 attack (Board player1 player2) attacker target = let (a, t) = minionAttack attacker target in
