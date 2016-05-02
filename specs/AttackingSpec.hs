@@ -55,15 +55,15 @@ spec = do
 
   describe "when attacking enemy hero" $ do
     let attacker = Card { cpower=5, health=5, cost=0 }
-    let targetPlayer = createPlayer
+    let targetPlayer = createPlayer { hero = Card 2 30 0 }
     let board = Board
+                    createPlayer { public = [attacker] }
                     targetPlayer
-                    createPlayer
 
     let (Board player1 player2) = attackPlayer board attacker targetPlayer
 
     it "reduces attacked hero's health" $
       (health . hero) player2 `shouldBe` (health . hero) targetPlayer - power attacker
 
-    it "reduces attacker's health by hero's power"
-      pending
+    it "reduces attacker's health by hero's power" $
+      (health . head . public) player1 `shouldBe` health attacker - (cpower . hero) targetPlayer

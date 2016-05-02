@@ -50,7 +50,7 @@ attack attacker target (Board player1 player2) = let (a, t) = minionAttack attac
 
 attackPlayer :: Board -> Card -> Player -> Board
 attackPlayer (Board player1 player2) attacker target = Board
-                                                          player1
+                                                          player1 { public = replace attacker (damage attacker ((cpower . hero) target)) (public player1)}
                                                           (removeHp player2 (power attacker))
 
 replace :: Card -> Card -> [Card] -> [Card]
