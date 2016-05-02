@@ -48,10 +48,10 @@ attack attacker target (Board player1 player2) = let (a, t) = minionAttack attac
                   | health new > 0 = player { public = replace original new (public player) }
                   | otherwise = player { public = delete original (public player) }
 
-attackPlayer :: Board -> Card -> Player -> Board
-attackPlayer (Board player1 player2) attacker target = Board
-                                                          player1 { public = replace attacker (damage attacker ((cpower . hero) target)) (public player1)}
-                                                          (removeHp player2 (power attacker))
+attackPlayer :: Board -> Card -> Board
+attackPlayer (Board player1 player2) attacker = Board
+                                                  player1 { public = replace attacker (damage attacker ((cpower . hero) player2)) (public player1)}
+                                                  (removeHp player2 (power attacker))
 
 replace :: Card -> Card -> [Card] -> [Card]
 replace search new = map (\x -> if x == search then new else x)
