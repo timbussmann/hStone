@@ -119,22 +119,22 @@ createNewBoard =
     player1 = Player { name = "player1"
                       , hand = []
                       , public = []
-                      , deck = [ Card 1 1 1
-                               , Card 2 2 2
-                               , Card 3 3 3
+                      , deck = [ Card 1 1 1 True
+                               , Card 2 2 2 True
+                               , Card 3 3 3 True
                       ]
                     , totalMana = 0
                     , currentMana= 0
-                    , hero = Card 0 5 0 };
+                    , hero = Card 0 5 0 True };
     player2 = Player { name = "player2"
                       , hand = []
                       , public = []
-                      , deck = [ Card 1 1 1
-                               , Card 2 2 2
-                               , Card 3 3 3
+                      , deck = [ Card 1 1 1 True
+                               , Card 2 2 2 True
+                               , Card 3 3 3 True
                       ]
                     , totalMana = 0
                     , currentMana= 0
-                    , hero = Card 0 5 0 };
+                    , hero = Card 0 5 0 True };
   }
   in Board player1 player2

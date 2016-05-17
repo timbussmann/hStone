@@ -11,7 +11,7 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "playing a minion card" $ do
-    let card = Card 1 3 5
+    let card = Card 1 3 5 True
     let player1 = createPlayer { hand = [card]
                                , public = []
                                , deck = []
@@ -44,7 +44,7 @@ spec = do
     let player2 = createPlayer { name = "p2"
                          , hand = []
                          , public = []
-                         , deck = [ Card 1 1 1, Card 2 2 2 ]
+                         , deck = [ Card 1 1 1 True, Card 2 2 2 True ]
                          , currentMana = 2
                          , totalMana = 4 }
 
@@ -92,8 +92,8 @@ spec = do
   describe "evaluating a winner" $ do
     describe "when both players still have healthpoints" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0}
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0 True }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 True }}
 
       let result = evaluateWinner board
 
@@ -102,8 +102,8 @@ spec = do
 
     describe "when active player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 0 0}
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0}}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 0 0 True }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 True }}
 
       let result = evaluateWinner board
 
@@ -112,8 +112,8 @@ spec = do
 
     describe "when inactive player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0}
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-1) 0}}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0 True }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-1) 0 True }}
 
       let result = evaluateWinner board
 
@@ -122,8 +122,8 @@ spec = do
 
     describe "when both players have no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 (-3) 0 }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-5) 0 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 (-3) 0 True }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-5) 0 True }}
 
       let result = evaluateWinner board
 
@@ -133,7 +133,7 @@ spec = do
   describe "making an action" $ do
     describe "when game not finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b) { hero = Card 0 42 0 }}
+      let modification b = b { activePlayer = (activePlayer b) { hero = Card 0 42 0 True }}
 
       let Right result = action board modification
 
@@ -142,13 +142,14 @@ spec = do
 
     describe "when game finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b){ hero = Card 0 0 0 } }
+      let modification b = b { activePlayer = (activePlayer b){ hero = Card 0 0 0 True } }
 
       let Left result = action board modification
 
       it "returns the winner" $
         result `shouldBe` inactivePlayer board
 
+--TODO: Split minions and cards
 --TODO: input verification
 --TODO: use states to generate unique players, cards, etc
 --TODO: cards with buffs, effects

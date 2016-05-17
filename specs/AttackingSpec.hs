@@ -7,8 +7,8 @@ import TestUtils
 spec :: Spec
 spec = do
   describe "attacking with a minion" $ do
-    let attacker = Card { cpower=2, health=6, cost=0 }
-    let target = Card { cpower=1, health=5, cost=0 }
+    let attacker = Card { cpower=2, health=6, cost=0, active=True }
+    let target = Card { cpower=1, health=5, cost=0, active=True }
     let board = Board
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
@@ -22,9 +22,9 @@ spec = do
       (health . head . public) player1 `shouldBe` health attacker - power target
 
   describe "when attacked minion has no more health" $ do
-    let attacker = Card { cpower=10, health=10, cost=0 }
-    let target = Card { cpower=2, health=2, cost=0 }
-    let otherCard = Card { cpower=10, health=10, cost=0 }
+    let attacker = Card { cpower=10, health=10, cost=0, active=True }
+    let target = Card { cpower=2, health=2, cost=0, active=True }
+    let otherCard = Card { cpower=10, health=10, cost=0, active=True }
     let board = Board
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
@@ -38,9 +38,9 @@ spec = do
       public player2 `shouldSatisfy` elem otherCard
 
   describe "when attacking minion has no more health" $ do
-    let attacker = Card { cpower=2, health=2, cost=0 }
-    let target = Card { cpower=8, health=8, cost=0 }
-    let otherCard = Card { cpower=10, health=10, cost=0 }
+    let attacker = Card { cpower=2, health=2, cost=0, active=True }
+    let target = Card { cpower=8, health=8, cost=0, active=True }
+    let otherCard = Card { cpower=10, health=10, cost=0, active=True }
     let board = Board
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
@@ -54,8 +54,8 @@ spec = do
      public player1 `shouldSatisfy` elem otherCard
 
   describe "when attacking enemy hero" $ do
-    let attacker = Card { cpower=5, health=5, cost=0 }
-    let targetPlayer = createPlayer { hero = Card 2 30 0 }
+    let attacker = Card { cpower=5, health=5, cost=0, active=True }
+    let targetPlayer = createPlayer { hero = Card 2 30 0 True }
     let board = Board
                     createPlayer { public = [attacker] }
                     targetPlayer

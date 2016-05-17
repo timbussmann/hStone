@@ -8,7 +8,8 @@ class Unit a where
 
 data Card = Card { cpower  :: Int
                  , health :: Int
-                 , cost   :: Int } deriving(Show, Eq)
+                 , cost   :: Int
+                 , active :: Bool } deriving(Show, Eq)
 
 instance Unit Card where
   damage u x = u { health = health u - x }
