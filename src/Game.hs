@@ -63,7 +63,7 @@ removeHp player x = let h = hero player
                     in player { hero = h' }
 
 endTurn :: Board -> Board
-endTurn board = Board ((refreshCurrentMana . increaseTotalMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
+endTurn board = Board ((activateMinions . refreshCurrentMana . increaseTotalMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
 
 drawDeckCard :: Player -> Player
 drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand player)
@@ -77,6 +77,9 @@ increaseTotalMana player = player { totalMana = totalMana player + 1 }
 
 refreshCurrentMana :: Player -> Player
 refreshCurrentMana player = player { currentMana = totalMana player }
+
+activateMinions :: Player -> Player
+activateMinions player = player { public = map (\c -> c { active = True }) (public player) }
 
 evaluateWinner :: Board -> Maybe Player
 evaluateWinner b
