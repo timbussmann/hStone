@@ -11,7 +11,7 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "playing a minion card" $ do
-    let card = Card 1 3 5 True
+    let card = Card 1 3 5
     let player1 = createPlayer { hand = [card]
                                , public = []
                                , deck = []
@@ -47,7 +47,7 @@ spec = do
     let player2 = createPlayer { name = "p2"
                          , hand = []
                          , public = [ Minion 1 1 False, Minion 2 2 False ]
-                         , deck = [ Card 1 1 1 True, Card 2 2 2 True ]
+                         , deck = [ Card 1 1 1, Card 2 2 2 ]
                          , currentMana = 2
                          , totalMana = 4 }
 
@@ -98,8 +98,8 @@ spec = do
   describe "evaluating a winner" $ do
     describe "when both players still have healthpoints" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0 True }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 True }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0 }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 }}
 
       let result = evaluateWinner board
 
@@ -108,8 +108,8 @@ spec = do
 
     describe "when active player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 0 0 True }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 True }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 0 0 }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 30 0 }}
 
       let result = evaluateWinner board
 
@@ -118,8 +118,8 @@ spec = do
 
     describe "when inactive player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0 True }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-1) 0 True }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 1 0 }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-1) 0 }}
 
       let result = evaluateWinner board
 
@@ -128,8 +128,8 @@ spec = do
 
     describe "when both players have no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Card 0 (-3) 0 True }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-5) 0 True }}
+                    { activePlayer = createPlayer { name = "p1", hero = Card 0 (-3) 0 }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Card 0 (-5) 0 }}
 
       let result = evaluateWinner board
 
@@ -139,7 +139,7 @@ spec = do
   describe "making an action" $ do
     describe "when game not finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b) { hero = Card 0 42 0 True }}
+      let modification b = b { activePlayer = (activePlayer b) { hero = Card 0 42 0 }}
 
       let Right result = action board modification
 
@@ -148,7 +148,7 @@ spec = do
 
     describe "when game finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b){ hero = Card 0 0 0 True } }
+      let modification b = b { activePlayer = (activePlayer b){ hero = Card 0 0 0 } }
 
       let Left result = action board modification
 

@@ -58,7 +58,7 @@ spec = do
 
   describe "when attacking enemy hero" $ do
     let attacker = Minion 5 5 True
-    let targetPlayer = createPlayer { hero = Card 2 30 0 True }
+    let targetPlayer = createPlayer { hero = Card 2 30 0 }
     let board = Board
                     createPlayer { public = [attacker] }
                     targetPlayer
