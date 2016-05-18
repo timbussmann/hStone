@@ -155,6 +155,7 @@ spec = do
       it "returns the winner" $
         result `shouldBe` inactivePlayer board
 
+--TODO: check for cards to remove after each board action
 --TODO: Split minions and cards
 --TODO: input verification
 --TODO: use states to generate unique players, cards, etc

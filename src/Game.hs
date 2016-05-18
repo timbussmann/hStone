@@ -43,7 +43,7 @@ minionAttack attacker target = ( damage attacker (power target)
 
 attack :: Card -> Card -> Board -> Board
 attack attacker target (Board player1 player2) = let (a, t) = minionAttack attacker target in
-    Board (updatePublicCards player1 attacker a) (updatePublicCards player2 target t)
+    Board (updatePublicCards player1 attacker (a { active = False })) (updatePublicCards player2 target t)
     where
       updatePublicCards player original new
                   | health new > 0 = player { public = replace original new (public player) }
