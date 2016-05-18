@@ -21,6 +21,9 @@ spec = do
     it "reduces attacker's health by target's power" $
       (health . head . public) player1 `shouldBe` health attacker - power target
 
+    it "deactivates attacking minion" $
+      (active . head . public) player1 `shouldBe` False
+
   describe "when attacked minion has no more health" $ do
     let attacker = Card { cpower=10, health=10, cost=0, active=True }
     let target = Card { cpower=2, health=2, cost=0, active=True }
