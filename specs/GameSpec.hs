@@ -46,7 +46,7 @@ spec = do
                          , totalMana = 0 }
     let player2 = createPlayer { name = "p2"
                          , hand = []
-                         , public = []
+                         , public = [ Card 1 1 1 False, Card 2 2 2 False ]
                          , deck = [ Card 1 1 1 True, Card 2 2 2 True ]
                          , currentMana = 2
                          , totalMana = 4 }
@@ -70,6 +70,9 @@ spec = do
     it "active player draws card from deck" $ do
       (head . hand . activePlayer) result `shouldBe` (head . deck) player2
       (head . deck) player2 `shouldSatisfy` flip notElem (deck $ activePlayer result)
+
+    it "activates active player's minions" $
+      public (activePlayer result) `shouldSatisfy` all active
 
   describe "when player has no more cards in deck" $ do
     let board = Board createPlayer createPlayer
