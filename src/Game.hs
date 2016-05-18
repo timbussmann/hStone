@@ -32,7 +32,7 @@ boardAction board action = let b' = action board
 
 playCard :: Card -> Board -> Board
 playCard card board = let p = activePlayer board
-                          p' = p { public = card : public p
+                          p' = p { public = card { active = False } : public p
                               , hand = delete card (hand p)
                               , currentMana = currentMana p - cost card }
                       in board { activePlayer = p'}

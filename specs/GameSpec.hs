@@ -22,14 +22,17 @@ spec = do
     let rBoard = playCard card board
     let rPlayer = activePlayer rBoard
 
-    it "places the card on the active player's board" $
-      public rPlayer `shouldBe` [card]
+    it "places the card on the active player's board" $ do
+      length (public rPlayer) `shouldBe` 1
+      let c = (head . public) rPlayer
+      cpower c `shouldBe` cpower card
+      health c `shouldBe` health card
 
     it "reduces the mana pool by the card's cost" $
       currentMana rPlayer `shouldBe` 10 - cost card
 
-    it "disables the card"
-      pending
+    it "disables the card" $
+      (active . head . public) rPlayer `shouldBe` False
 
     it "removes the card from the hand" $
       hand rPlayer `shouldBe` []
