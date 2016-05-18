@@ -72,8 +72,8 @@ handle (Just b) ("put":cardId:_) = do
   let b' = boardAction b (playCard cardToPlay)
   return $ Just b'
 handle (Just b) ("attack":attackerId:targetId:_) = do
-  let attacker = getCardById b attackerId
-  let target = getCardById b targetId
+  let attacker = getMinionById b attackerId
+  let target = getMinionById b targetId
   let b' = boardAction b (attack attacker target)
   return $ Just b'
 handle b (c:_) = do
@@ -88,20 +88,24 @@ printBoard b = do
   putStrLn "Hand:"
   printCards (hand p1) handPrefix
   putStrLn "Public:"
-  printCards (public p1) playerPublicPrefix
+  printMinions (public p1) playerPublicPrefix
   putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (health (hero p2)) (currentMana p2) (totalMana p2)
   putStrLn "Public:"
-  printCards (public p2) enemyPublicPrefix
+  printMinions (public p2) enemyPublicPrefix
 
 printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
 printCards cards prefix = foldM_
-  (\i c -> putStrLn (showCard c prefix i) >>= \_ -> return (i + 1))
-  1
+  (\i c -> putStrLn (printf "[%c%d] %d HP %d AP" prefix i (health c) (power c)) >>= \_ -> return (i + 1))
+  (1 :: Int)
   cards
 
-showCard :: Card -> Char -> Int -> String
-showCard c prefix i = printf "[%c%d] %d HP %d AP" prefix i (health c) (power c)
+printMinions :: [Minion] -> Char -> IO ()
+printMinions [] _ = putStrLn "-"
+printMinions minions prefix = foldM_
+  (\i c -> putStrLn (printf "[%c%d] %d HP %d AP" prefix i (mhealth c) (mpower c)) >>= \_ -> return (i + 1))
+  (1 :: Int)
+  minions
 
 getCardById :: Board -> String -> Card
 getCardById b identifier = let (prefix, index) = split identifier
@@ -109,6 +113,12 @@ getCardById b identifier = let (prefix, index) = split identifier
                            where split (x:xs) = (x, read xs :: Int)
                                  getCards x
                                   | x == handPrefix = hand $ activePlayer b
+
+getMinionById :: Board -> String -> Minion
+getMinionById b identifier = let (prefix, index) = split identifier
+                           in getCards prefix !! (index - 1)
+                           where split (x:xs) = (x, read xs :: Int)
+                                 getCards x
                                   | x == playerPublicPrefix = public $ activePlayer b
                                   | x == enemyPublicPrefix = public $ inactivePlayer b
 

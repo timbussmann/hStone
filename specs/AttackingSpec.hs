@@ -7,8 +7,8 @@ import TestUtils
 spec :: Spec
 spec = do
   describe "attacking with a minion" $ do
-    let attacker = Card { cpower=2, health=6, cost=0, active=True }
-    let target = Card { cpower=1, health=5, cost=0, active=True }
+    let attacker = Minion { mpower=2, mhealth=6, mactive=True }
+    let target = Minion { mpower=1, mhealth=5, mactive=True }
     let board = Board
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
@@ -16,18 +16,18 @@ spec = do
     let (Board player1 player2) = attack attacker target board
 
     it "reduces target's health by attacker's power" $
-      (health . head . public) player2 `shouldBe` health target - power attacker
+      (mhealth . head . public) player2 `shouldBe` mhealth target - power attacker
 
     it "reduces attacker's health by target's power" $
-      (health . head . public) player1 `shouldBe` health attacker - power target
+      (mhealth . head . public) player1 `shouldBe` mhealth attacker - power target
 
     it "deactivates attacking minion" $
-      (active . head . public) player1 `shouldBe` False
+      (mactive . head . public) player1 `shouldBe` False
 
   describe "when attacked minion has no more health" $ do
-    let attacker = Card { cpower=10, health=10, cost=0, active=True }
-    let target = Card { cpower=2, health=2, cost=0, active=True }
-    let otherCard = Card { cpower=10, health=10, cost=0, active=True }
+    let attacker = Minion 10 10 True
+    let target = Minion 2 2 False
+    let otherCard = Minion 10 10 False
     let board = Board
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
@@ -41,9 +41,9 @@ spec = do
       public player2 `shouldSatisfy` elem otherCard
 
   describe "when attacking minion has no more health" $ do
-    let attacker = Card { cpower=2, health=2, cost=0, active=True }
-    let target = Card { cpower=8, health=8, cost=0, active=True }
-    let otherCard = Card { cpower=10, health=10, cost=0, active=True }
+    let attacker = Minion 2 2 True
+    let target = Minion 8 8 False
+    let otherCard = Minion 10 10 True
     let board = Board
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
@@ -57,7 +57,7 @@ spec = do
      public player1 `shouldSatisfy` elem otherCard
 
   describe "when attacking enemy hero" $ do
-    let attacker = Card { cpower=5, health=5, cost=0, active=True }
+    let attacker = Minion 5 5 True
     let targetPlayer = createPlayer { hero = Card 2 30 0 True }
     let board = Board
                     createPlayer { public = [attacker] }
@@ -69,4 +69,4 @@ spec = do
       (health . hero) player2 `shouldBe` (health . hero) targetPlayer - power attacker
 
     it "reduces attacker's health by hero's power" $
-      (health . head . public) player1 `shouldBe` health attacker - (cpower . hero) targetPlayer
+      (mhealth . head . public) player1 `shouldBe` mhealth attacker - (cpower . hero) targetPlayer

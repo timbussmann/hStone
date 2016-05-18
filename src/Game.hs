@@ -12,12 +12,20 @@ data Card = Card { cpower  :: Int
                  , active :: Bool } deriving(Show, Eq)
 
 instance Unit Card where
-  damage u x = u { health = health u - x }
-  power = cpower
+ damage u x = u { health = health u - x }
+ power = cpower
+
+data Minion = Minion { mpower :: Int
+                     , mhealth :: Int
+                     , mactive :: Bool } deriving(Show, Eq)
+
+instance Unit Minion where
+  damage u x = u { mhealth = mhealth u - x }
+  power = mpower
 
 data Player = Player { name        :: String
                      , hand        :: [Card]
-                     , public      :: [Card]
+                     , public      :: [Minion]
                      , deck        :: [Card]
                      , hero        :: Card
                      , totalMana   :: Int
@@ -32,29 +40,32 @@ boardAction board action = let b' = action board
 
 playCard :: Card -> Board -> Board
 playCard card board = let p = activePlayer board
-                          p' = p { public = card { active = False } : public p
+                          p' = p { public = minionFromCard card : public p
                               , hand = delete card (hand p)
                               , currentMana = currentMana p - cost card }
                       in board { activePlayer = p'}
+
+minionFromCard :: Card -> Minion
+minionFromCard c = Minion (cpower c) (health c) False
 
 minionAttack :: (Unit u) => u -> u -> (u, u)
 minionAttack attacker target = ( damage attacker (power target)
                                , damage target (power attacker))
 
-attack :: Card -> Card -> Board -> Board
+attack :: Minion -> Minion -> Board -> Board
 attack attacker target (Board player1 player2) = let (a, t) = minionAttack attacker target in
-    Board (updatePublicCards player1 attacker (a { active = False })) (updatePublicCards player2 target t)
+    Board (updatePublicCards player1 attacker (a { mactive = False })) (updatePublicCards player2 target t)
     where
       updatePublicCards player original new
-                  | health new > 0 = player { public = replace original new (public player) }
+                  | mhealth new > 0 = player { public = replace original new (public player) }
                   | otherwise = player { public = delete original (public player) }
 
-attackPlayer :: Board -> Card -> Board
+attackPlayer :: Board -> Minion -> Board
 attackPlayer (Board player1 player2) attacker = Board
                                                   player1 { public = replace attacker (damage attacker ((cpower . hero) player2)) (public player1)}
                                                   (removeHp player2 (power attacker))
 
-replace :: Card -> Card -> [Card] -> [Card]
+replace :: (Eq a) => a -> a -> [a] -> [a]
 replace search new = map (\x -> if x == search then new else x)
 
 removeHp :: Player -> Int -> Player
@@ -79,7 +90,7 @@ refreshCurrentMana :: Player -> Player
 refreshCurrentMana player = player { currentMana = totalMana player }
 
 activateMinions :: Player -> Player
-activateMinions player = player { public = map (\c -> c { active = True }) (public player) }
+activateMinions player = player { public = map (\c -> c { mactive = True }) (public player) }
 
 evaluateWinner :: Board -> Maybe Player
 evaluateWinner b

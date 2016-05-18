@@ -25,14 +25,14 @@ spec = do
     it "places the card on the active player's board" $ do
       length (public rPlayer) `shouldBe` 1
       let c = (head . public) rPlayer
-      cpower c `shouldBe` cpower card
-      health c `shouldBe` health card
+      mpower c `shouldBe` cpower card
+      mhealth c `shouldBe` health card
 
     it "reduces the mana pool by the card's cost" $
       currentMana rPlayer `shouldBe` 10 - cost card
 
     it "disables the card" $
-      (active . head . public) rPlayer `shouldBe` False
+      (mactive . head . public) rPlayer `shouldBe` False
 
     it "removes the card from the hand" $
       hand rPlayer `shouldBe` []
@@ -46,7 +46,7 @@ spec = do
                          , totalMana = 0 }
     let player2 = createPlayer { name = "p2"
                          , hand = []
-                         , public = [ Card 1 1 1 False, Card 2 2 2 False ]
+                         , public = [ Minion 1 1 False, Minion 2 2 False ]
                          , deck = [ Card 1 1 1 True, Card 2 2 2 True ]
                          , currentMana = 2
                          , totalMana = 4 }
@@ -72,7 +72,7 @@ spec = do
       (head . deck) player2 `shouldSatisfy` flip notElem (deck $ activePlayer result)
 
     it "activates active player's minions" $
-      public (activePlayer result) `shouldSatisfy` all active
+      public (activePlayer result) `shouldSatisfy` all mactive
 
   describe "when player has no more cards in deck" $ do
     let board = Board createPlayer createPlayer
