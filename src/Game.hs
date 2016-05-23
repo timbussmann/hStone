@@ -18,6 +18,9 @@ data Minion = Minion { mpower :: Int
                      , mhealth :: Int
                      , mactive :: Bool } deriving(Show, Eq)
 
+data Hero = Hero { heroPower :: Int
+                 , heroHealth :: Int } deriving(Show, Eq)
+
 instance Unit Minion where
   damage u x = u { mhealth = mhealth u - x }
   power = mpower
@@ -26,7 +29,7 @@ data Player = Player { name        :: String
                      , hand        :: [Card]
                      , public      :: [Minion]
                      , deck        :: [Card]
-                     , hero        :: Card
+                     , hero        :: Hero
                      , totalMana   :: Int
                      , currentMana :: Int } deriving(Show, Eq)
 
@@ -61,7 +64,7 @@ attack attacker target (Board player1 player2) = let (a, t) = minionAttack attac
 
 attackPlayer :: Board -> Minion -> Board
 attackPlayer (Board player1 player2) attacker = Board
-                                                  player1 { public = replace attacker (damage attacker ((cpower . hero) player2)) (public player1)}
+                                                  player1 { public = replace attacker (damage attacker ((heroPower . hero) player2)) (public player1)}
                                                   (removeHp player2 (power attacker))
 
 replace :: (Eq a) => a -> a -> [a] -> [a]
@@ -69,7 +72,7 @@ replace search new = map (\x -> if x == search then new else x)
 
 removeHp :: Player -> Int -> Player
 removeHp player x = let h = hero player
-                        h' = h { health = health h - x}
+                        h' = h { heroHealth = heroHealth h - x}
                     in player { hero = h' }
 
 endTurn :: Board -> Board
@@ -93,8 +96,8 @@ activateMinions player = player { public = map (\c -> c { mactive = True }) (pub
 
 evaluateWinner :: Board -> Maybe Player
 evaluateWinner b
-  | health (hero p2) <= 0 = Just p1
-  | health (hero p1) <= 0 = Just p2
+  | heroHealth (hero p2) <= 0 = Just p1
+  | heroHealth (hero p1) <= 0 = Just p2
   | otherwise = Nothing
   where p1 = activePlayer b
         p2 = inactivePlayer b

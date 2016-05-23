@@ -10,7 +10,7 @@ createPlayer = Player
                 , deck = []
                 , currentMana = 0
                 , totalMana = 0
-                , hero = Card 0 30 0 };
+                , hero = Hero 0 30 };
 
 createBoard :: Board
 createBoard = Board

@@ -1,4 +1,3 @@
-
 import           Cli
 
 main = start

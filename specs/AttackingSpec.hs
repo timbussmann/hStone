@@ -58,7 +58,7 @@ spec = do
 
   describe "when attacking enemy hero" $ do
     let attacker = Minion 5 5 True
-    let targetPlayer = createPlayer { hero = Card 2 30 0 }
+    let targetPlayer = createPlayer { hero = Hero 2 30 }
     let board = Board
                     createPlayer { public = [attacker] }
                     targetPlayer
@@ -66,7 +66,7 @@ spec = do
     let (Board player1 player2) = attackPlayer board attacker
 
     it "reduces attacked hero's health" $
-      (health . hero) player2 `shouldBe` (health . hero) targetPlayer - power attacker
+      (heroHealth . hero) player2 `shouldBe` (heroHealth . hero) targetPlayer - power attacker
 
     it "reduces attacker's health by hero's power" $
-      (mhealth . head . public) player1 `shouldBe` mhealth attacker - (cpower . hero) targetPlayer
+      (mhealth . head . public) player1 `shouldBe` mhealth attacker - (heroPower . hero) targetPlayer
