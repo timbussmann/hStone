@@ -96,7 +96,7 @@ printBoard b = do
 printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
 printCards cards prefix = foldM_
-  (\i c -> putStrLn (printf "[%c%d] %d HP %d AP" prefix i (health c) (power c)) >>= \_ -> return (i + 1))
+  (\i c -> putStrLn (printf "[%c%d] %d HP %d AP" prefix i (health c) (cpower c)) >>= \_ -> return (i + 1))
   (1 :: Int)
   cards
 

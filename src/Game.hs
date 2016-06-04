@@ -10,10 +10,6 @@ data Card = Card { cpower  :: Int
                  , health :: Int
                  , cost   :: Int } deriving(Show, Eq)
 
-instance Unit Card where
- damage u x = u { health = health u - x }
- power = cpower
-
 data Minion = Minion { mpower :: Int
                      , mhealth :: Int
                      , mactive :: Bool } deriving(Show, Eq)
