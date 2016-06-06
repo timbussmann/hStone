@@ -33,8 +33,19 @@ data Board = Board { activePlayer   :: Player
                    , inactivePlayer :: Player } deriving(Show, Eq)
 
 boardAction :: Board -> (Board -> Board) -> (Board, Maybe Player)
-boardAction board action = let b' = action board
+boardAction board action = let b' = removeDeadMinions (action board)
                            in (b', evaluateWinner b')
+
+removeDeadMinions :: Board -> Board
+removeDeadMinions board = let ap = activePlayer board
+                              iap = inactivePlayer board
+                              activePlayerCards = public ap
+                              inactivePlayerCards = public iap
+                          in board {
+                            activePlayer = ap { public = removeDead activePlayerCards },
+                            inactivePlayer = iap { public = removeDead inactivePlayerCards }
+                          }
+                          where removeDead = filter (\m -> mhealth m <= 0)
 
 playCard :: Card -> Board -> Board
 playCard card board = let p = activePlayer board
@@ -54,9 +65,7 @@ attack :: Minion -> Minion -> Board -> Board
 attack attacker target (Board player1 player2) = let (a, t) = minionAttack attacker target in
     Board (updatePublicCards player1 attacker (a { mactive = False })) (updatePublicCards player2 target t)
     where
-      updatePublicCards player original new
-                  | mhealth new > 0 = player { public = replace original new (public player) }
-                  | otherwise = player { public = delete original (public player) }
+      updatePublicCards player original new = player { public = replace original new (public player) }
 
 attackPlayer :: Board -> Minion -> Board
 attackPlayer (Board player1 player2) attacker = Board
