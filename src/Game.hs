@@ -6,7 +6,8 @@ class Unit a where
   damage :: a -> Int -> a
   power :: a -> Int
 
-data Card = Card { cpower  :: Int
+data Card = Card { cname :: String
+                 , cpower  :: Int
                  , health :: Int
                  , cost   :: Int } deriving(Show, Eq)
 

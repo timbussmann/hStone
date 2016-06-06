@@ -11,7 +11,7 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "playing a minion card" $ do
-    let card = Card 1 3 5
+    let card = Card "" 1 3 5
     let player1 = createPlayer { hand = [card]
                                , public = []
                                , deck = []
@@ -47,7 +47,7 @@ spec = do
     let player2 = createPlayer { name = "p2"
                          , hand = []
                          , public = [ Minion 1 1 False, Minion 2 2 False ]
-                         , deck = [ Card 1 1 1, Card 2 2 2 ]
+                         , deck = [ Card "1" 1 1 1, Card "2" 2 2 2 ]
                          , currentMana = 2
                          , totalMana = 4 }
 
@@ -159,3 +159,4 @@ spec = do
 --TODO: use states to generate unique players, cards, etc
 --TODO: cards with buffs, effects
 --TODO: spell cards (non-minions)
+--TODO: taunt

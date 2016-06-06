@@ -4,6 +4,7 @@ import           Control.Monad
 import           Control.Monad.State
 import           Data.List.Split
 import           Game
+import           Cards
 import           System.IO
 import           Text.Printf
 import           Data.Maybe
@@ -96,7 +97,7 @@ printBoard b = do
 printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
 printCards cards prefix = foldM_
-  (\i c -> putStrLn (printf "[%c%d] %d HP %d AP" prefix i (health c) (cpower c)) >>= \_ -> return (i + 1))
+  (\i c -> putStrLn (printf "[%c%d] %s %d HP %d AP" prefix i (cname c) (health c) (cpower c)) >>= \_ -> return (i + 1))
   (1 :: Int)
   cards
 
@@ -129,20 +130,14 @@ createNewBoard =
     player1 = Player { name = "player1"
                       , hand = []
                       , public = []
-                      , deck = [ Card 1 1 1
-                               , Card 2 2 2
-                               , Card 3 3 3
-                      ]
+                      , deck = reverse cards
                     , totalMana = 0
                     , currentMana= 0
                     , hero = Hero 0 5 };
     player2 = Player { name = "player2"
                       , hand = []
                       , public = []
-                      , deck = [ Card 1 1 1
-                               , Card 2 2 2
-                               , Card 3 3 3
-                      ]
+                      , deck = reverse cards
                     , totalMana = 0
                     , currentMana= 0
                     , hero = Hero 0 5 };
