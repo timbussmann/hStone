@@ -18,6 +18,12 @@ data Minion = Minion { mpower :: Int
 data Hero = Hero { heroPower :: Int
                  , heroHealth :: Int } deriving(Show, Eq)
 
+data Spell = NonTargetSpell { spellName :: String
+                            , spellCost :: Int }
+           | TargetSpell { spellName :: String
+                         , spellCost :: Int }
+
+
 instance Unit Minion where
   damage u x = u { mhealth = mhealth u - x }
   power = mpower
