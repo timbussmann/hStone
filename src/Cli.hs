@@ -94,10 +94,10 @@ printBoard b = do
   putStrLn "Public:"
   printMinions (public p2) enemyPublicPrefix
 
-printCards :: [Card] -> Char -> IO ()
+printCards :: [Card2] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
 printCards cards prefix = foldM_
-  (\i c -> putStrLn (printf "[%c%d] %s %d HP %d AP" prefix i (cname c) (health c) (cpower c)) >>= \_ -> return (i + 1))
+  (\i (MinionCard minion) -> putStrLn (printf "[%c%d] %s %d HP %d AP" prefix i (mname minion) (mhealth minion) (mpower minion)) >>= \_ -> return (i + 1))
   (1 :: Int)
   cards
 
@@ -108,7 +108,7 @@ printMinions minions prefix = foldM_
   (1 :: Int)
   minions
 
-getCardById :: Board -> String -> Card
+getCardById :: Board -> String -> Card2
 getCardById b identifier = let (prefix, index) = split identifier
                            in getCards prefix !! (index - 1)
                            where split (x:xs) = (x, read xs :: Int)

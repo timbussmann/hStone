@@ -2,14 +2,18 @@ module Game where
 
 import           Data.List
 
+data Card2 = MinionCard Minion | SpellCard Spell deriving(Show, Eq)
+
 data Card = Card { cname :: String
                  , cpower  :: Int
                  , health :: Int
                  , cost   :: Int } deriving(Show, Eq)
 
-data Minion = Minion { mpower :: Int
-                     , mhealth :: Int
-                     , mactive :: Bool } deriving(Show, Eq)
+data Minion = Minion { mname :: String
+                      , mpower :: Int
+                      , mhealth :: Int
+                      , mcost :: Int
+                      , mactive :: Bool } deriving(Show, Eq)
 
 data Hero = Hero { heroPower :: Int
                  , heroHealth :: Int } deriving(Show, Eq)
@@ -17,13 +21,13 @@ data Hero = Hero { heroPower :: Int
 data Spell = NonTargetSpell { spellName :: String
                             , spellCost :: Int }
            | TargetSpell { spellName :: String
-                         , spellCost :: Int }
+                         , spellCost :: Int } deriving(Show, Eq)
 
 
 data Player = Player { name        :: String
-                     , hand        :: [Card]
+                     , hand        :: [Card2]
                      , public      :: [Minion]
-                     , deck        :: [Card]
+                     , deck        :: [Card2]
                      , hero        :: Hero
                      , totalMana   :: Int
                      , currentMana :: Int } deriving(Show, Eq)
@@ -46,15 +50,15 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m <= 0)
 
-playCard :: Card -> Board -> Board
-playCard card board = let p = activePlayer board
-                          p' = p { public = minionFromCard card : public p
-                              , hand = delete card (hand p)
-                              , currentMana = currentMana p - cost card }
-                      in board { activePlayer = p'}
+playCard :: Card2 -> Board -> Board
+playCard (c@(MinionCard minion)) board =    let p = activePlayer board
+                                                p' = p { public = minion { mactive = False }  : public p
+                                                , hand = delete c (hand p)
+                                                , currentMana = currentMana p - mcost minion }
+                                            in board { activePlayer = p'}
 
-minionFromCard :: Card -> Minion
-minionFromCard c = Minion (cpower c) (health c) False
+minionFromCard :: Card2 -> Minion
+minionFromCard (MinionCard minion) = minion { mactive = False }
 
 minionAttack :: Minion -> Minion -> (Minion, Minion)
 minionAttack attacker target = ( damage attacker (mpower target)

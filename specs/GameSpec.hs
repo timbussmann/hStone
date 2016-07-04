@@ -11,7 +11,8 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "playing a minion card" $ do
-    let card = Card "" 1 3 5
+    let minion = Minion "" 1 3 5 True
+    let card = MinionCard minion
     let player1 = createPlayer { hand = [card]
                                , public = []
                                , deck = []
@@ -24,12 +25,12 @@ spec = do
 
     it "places the card on the active player's board" $ do
       length (public rPlayer) `shouldBe` 1
-      let c = (head . public) rPlayer
-      mpower c `shouldBe` cpower card
-      mhealth c `shouldBe` health card
+      let m = (head . public) rPlayer
+      mpower m `shouldBe` mpower minion
+      mhealth m `shouldBe` mhealth minion
 
     it "reduces the mana pool by the card's cost" $
-      currentMana rPlayer `shouldBe` 10 - cost card
+      currentMana rPlayer `shouldBe` 10 - mcost minion
 
     it "disables the card" $
       (mactive . head . public) rPlayer `shouldBe` False
@@ -46,8 +47,8 @@ spec = do
                          , totalMana = 0 }
     let player2 = createPlayer { name = "p2"
                          , hand = []
-                         , public = [ Minion 1 1 False, Minion 2 2 False ]
-                         , deck = [ Card "1" 1 1 1, Card "2" 2 2 2 ]
+                         , public = [ Minion "m1" 1 1 0 False, Minion "m2" 2 2 0 False ]
+                         , deck = [ MinionCard (Minion "1" 1 1 1 False), MinionCard (Minion "2" 2 2 2 False)]
                          , currentMana = 2
                          , totalMana = 4 }
 

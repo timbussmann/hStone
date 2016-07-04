@@ -7,8 +7,8 @@ import TestUtils
 spec :: Spec
 spec = do
   describe "attacking with a minion" $ do
-    let attacker = Minion { mpower=2, mhealth=6, mactive=True }
-    let target = Minion { mpower=1, mhealth=5, mactive=True }
+    let attacker = Minion "attacker" 2 6 0 True
+    let target = Minion "target" 1 5 0 True
     let board = Board
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
@@ -25,9 +25,9 @@ spec = do
       (mactive . head . public) player1 `shouldBe` False
 
   describe "when attacked minion has no more health" $ do
-    let attacker = Minion 10 10 True
-    let target = Minion 2 2 False
-    let otherCard = Minion 10 10 False
+    let attacker = Minion "attacker" 10 10 0 True
+    let target = Minion "target" 2 2 0 False
+    let otherCard = Minion "other" 10 10 0 False
     let board = Board
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
@@ -41,9 +41,9 @@ spec = do
       public player2 `shouldSatisfy` elem otherCard
 
   describe "when attacking minion has no more health" $ do
-    let attacker = Minion 2 2 True
-    let target = Minion 8 8 False
-    let otherCard = Minion 10 10 True
+    let attacker = Minion "attacker" 2 2 0 True
+    let target = Minion "target" 8 8 0 False
+    let otherCard = Minion "other" 10 10 0 True
     let board = Board
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
@@ -57,7 +57,7 @@ spec = do
      public player1 `shouldSatisfy` elem otherCard
 
   describe "when attacking enemy hero" $ do
-    let attacker = Minion 5 5 True
+    let attacker = Minion "attacker" 5 5 0 True
     let targetPlayer = createPlayer { hero = Hero 2 30 }
     let board = Board
                     createPlayer { public = [attacker] }
