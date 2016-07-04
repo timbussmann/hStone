@@ -2,7 +2,7 @@ module Game where
 
 import           Data.List
 
-data Card2 = MinionCard Minion | SpellCard Spell deriving(Show, Eq)
+data Card = MinionCard Minion | SpellCard Spell deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
                       , mpower :: Int
@@ -20,9 +20,9 @@ data Spell = NonTargetSpell { spellName :: String
 
 
 data Player = Player { name        :: String
-                     , hand        :: [Card2]
+                     , hand        :: [Card]
                      , public      :: [Minion]
-                     , deck        :: [Card2]
+                     , deck        :: [Card]
                      , hero        :: Hero
                      , totalMana   :: Int
                      , currentMana :: Int } deriving(Show, Eq)
@@ -45,14 +45,14 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m <= 0)
 
-playCard :: Card2 -> Board -> Board
+playCard :: Card -> Board -> Board
 playCard (c@(MinionCard minion)) board =    let p = activePlayer board
                                                 p' = p { public = minion { mactive = False }  : public p
                                                 , hand = delete c (hand p)
                                                 , currentMana = currentMana p - mcost minion }
                                             in board { activePlayer = p'}
 
-minionFromCard :: Card2 -> Minion
+minionFromCard :: Card -> Minion
 minionFromCard (MinionCard minion) = minion { mactive = False }
 
 minionAttack :: Minion -> Minion -> (Minion, Minion)
