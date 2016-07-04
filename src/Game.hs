@@ -4,11 +4,6 @@ import           Data.List
 
 data Card2 = MinionCard Minion | SpellCard Spell deriving(Show, Eq)
 
-data Card = Card { cname :: String
-                 , cpower  :: Int
-                 , health :: Int
-                 , cost   :: Int } deriving(Show, Eq)
-
 data Minion = Minion { mname :: String
                       , mpower :: Int
                       , mhealth :: Int
