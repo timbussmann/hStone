@@ -16,10 +16,10 @@ spec = do
     let (Board player1 player2) = attack attacker target board
 
     it "reduces target's health by attacker's power" $
-      (mhealth . head . public) player2 `shouldBe` mhealth target - power attacker
+      (mhealth . head . public) player2 `shouldBe` mhealth target - mpower attacker
 
     it "reduces attacker's health by target's power" $
-      (mhealth . head . public) player1 `shouldBe` mhealth attacker - power target
+      (mhealth . head . public) player1 `shouldBe` mhealth attacker - mpower target
 
     it "deactivates attacking minion" $
       (mactive . head . public) player1 `shouldBe` False
@@ -66,7 +66,7 @@ spec = do
     let (Board player1 player2) = attackPlayer board attacker
 
     it "reduces attacked hero's health" $
-      (heroHealth . hero) player2 `shouldBe` (heroHealth . hero) targetPlayer - power attacker
+      (heroHealth . hero) player2 `shouldBe` (heroHealth . hero) targetPlayer - mpower attacker
 
     it "reduces attacker's health by hero's power" $
       (mhealth . head . public) player1 `shouldBe` mhealth attacker - (heroPower . hero) targetPlayer

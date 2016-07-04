@@ -2,10 +2,6 @@ module Game where
 
 import           Data.List
 
-class Unit a where
-  damage :: a -> Int -> a
-  power :: a -> Int
-
 data Card = Card { cname :: String
                  , cpower  :: Int
                  , health :: Int
@@ -23,10 +19,6 @@ data Spell = NonTargetSpell { spellName :: String
            | TargetSpell { spellName :: String
                          , spellCost :: Int }
 
-
-instance Unit Minion where
-  damage u x = u { mhealth = mhealth u - x }
-  power = mpower
 
 data Player = Player { name        :: String
                      , hand        :: [Card]
@@ -64,9 +56,9 @@ playCard card board = let p = activePlayer board
 minionFromCard :: Card -> Minion
 minionFromCard c = Minion (cpower c) (health c) False
 
-minionAttack :: (Unit u) => u -> u -> (u, u)
-minionAttack attacker target = ( damage attacker (power target)
-                               , damage target (power attacker))
+minionAttack :: Minion -> Minion -> (Minion, Minion)
+minionAttack attacker target = ( damage attacker (mpower target)
+                               , damage target (mpower attacker))
 
 attack :: Minion -> Minion -> Board -> Board
 attack attacker target (Board player1 player2) = let (a, t) = minionAttack attacker target in
@@ -77,7 +69,7 @@ attack attacker target (Board player1 player2) = let (a, t) = minionAttack attac
 attackPlayer :: Board -> Minion -> Board
 attackPlayer (Board player1 player2) attacker = Board
                                                   player1 { public = replace attacker (damage attacker ((heroPower . hero) player2)) (public player1)}
-                                                  (removeHp player2 (power attacker))
+                                                  (removeHp player2 (mpower attacker))
 
 replace :: (Eq a) => a -> a -> [a] -> [a]
 replace search new = map (\x -> if x == search then new else x)
@@ -113,6 +105,9 @@ evaluateWinner b
   | otherwise = Nothing
   where p1 = activePlayer b
         p2 = inactivePlayer b
+
+
+damage target d = target { mhealth = mhealth target - d }
 
 action :: Board -> (Board -> Board) -> Either Player Board
 action board action =
