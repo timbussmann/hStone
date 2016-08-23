@@ -70,3 +70,23 @@ spec = do
 
     it "reduces attacker's health by hero's power" $
       (mhealth . head . public) player1 `shouldBe` mhealth attacker - (heroPower . hero) targetPlayer
+
+  describe "when playing target spell on own minion" $ do
+    let target = Minion "target minion" 1 1 0 True
+    let expected = Minion "buffed minion" 12 12 0 True
+    let spellCard = SpellCard (AlliedTargetSpell "buff" 3 (const expected))
+    let board = Board
+                  createPlayer { public = [target], hand = [spellCard]}
+                  createPlayer
+
+    let result = playSpell spellCard target board
+
+    it "removes spell from the hand" $
+      (hand . activePlayer) result `shouldSatisfy` notElem spellCard
+
+    it "removes spell's mana cost from the player's mana pool" $
+      (currentMana . activePlayer) result `shouldBe` (currentMana . activePlayer) board - 3
+
+    it "casts spell effect on target" $ do
+      (public . activePlayer) result `shouldSatisfy` elem expected
+      (public . activePlayer) result `shouldSatisfy` notElem target

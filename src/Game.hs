@@ -15,9 +15,21 @@ data Hero = Hero { heroPower :: Int
 
 data Spell = NonTargetSpell { spellName :: String
                             , spellCost :: Int }
-           | TargetSpell { spellName :: String
-                         , spellCost :: Int } deriving(Show, Eq)
+           | AlliedTargetSpell  { spellName :: String
+                                , spellCost :: Int
+                                , spellEffect :: Minion -> Minion }
+           | EnemyTargetSpell { spellName :: String
+                              , spellCost :: Int }
 
+instance Show Spell where
+  show = spellName
+  -- show (NonTargetSpell name cost) = name
+  -- show (AlliedTargetSpell name _ _ _) = name
+  -- show (EnemyTargetSpell name _) = name
+instance Eq Spell where
+  x == y = spellName x == spellName y
+
+--instance (NonTargetSpell a b) Show where
 
 data Player = Player { name        :: String
                      , hand        :: [Card]
@@ -44,6 +56,15 @@ removeDeadMinions board = let ap = activePlayer board
                             inactivePlayer = iap { public = removeDead inactivePlayerCards }
                           }
                           where removeDead = filter (\m -> mhealth m <= 0)
+
+playSpell :: Card -> Minion -> Board -> Board
+playSpell (SpellCard (AlliedTargetSpell spellName spellCost spellEffect)) target board =
+  let target' = spellEffect target
+      player = activePlayer board
+  in board {
+    activePlayer = player {
+      public = replace target target' (public  player)
+    }}
 
 playCard :: Card -> Board -> Board
 playCard (c@(MinionCard minion)) board =    let p = activePlayer board
