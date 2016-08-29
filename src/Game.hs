@@ -5,21 +5,21 @@ import           Data.List
 data Card = MinionCard Minion | SpellCard Spell deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
-                      , mpower :: Int
-                      , mhealth :: Int
-                      , mcost :: Int
+                      , mpower :: Power
+                      , mhealth :: Health
+                      , mcost :: Mana
                       , mactive :: Bool } deriving(Show, Eq)
 
-data Hero = Hero { heroPower :: Int
-                 , heroHealth :: Int } deriving(Show, Eq)
+data Hero = Hero { heroPower :: Power
+                 , heroHealth :: Health } deriving(Show, Eq)
 
 data Spell = NonTargetSpell { spellName :: String
-                            , spellCost :: Int }
+                            , spellCost :: Mana }
            | AlliedTargetSpell  { spellName :: String
-                                , spellCost :: Int
+                                , spellCost :: Mana
                                 , spellEffect :: Minion -> Minion }
            | EnemyTargetSpell { spellName :: String
-                              , spellCost :: Int }
+                              , spellCost :: Mana }
 
 instance Show Spell where
   show = spellName
@@ -34,11 +34,15 @@ data Player = Player { name        :: String
                      , public      :: [Minion]
                      , deck        :: [Card]
                      , hero        :: Hero
-                     , totalMana   :: Int
-                     , currentMana :: Int } deriving(Show, Eq)
+                     , totalMana   :: Mana
+                     , currentMana :: Mana } deriving(Show, Eq)
 
 data Board = Board { activePlayer   :: Player
                    , inactivePlayer :: Player } deriving(Show, Eq)
+
+type Mana = Int
+type Power = Int
+type Health = Int
 
 boardAction :: Board -> (Board -> Board) -> (Board, Maybe Player)
 boardAction board action = let b' = removeDeadMinions (action board)
