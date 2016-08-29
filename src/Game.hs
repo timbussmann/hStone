@@ -58,12 +58,14 @@ removeDeadMinions board = let ap = activePlayer board
                           where removeDead = filter (\m -> mhealth m <= 0)
 
 playSpell :: Card -> Minion -> Board -> Board
-playSpell (SpellCard (AlliedTargetSpell spellName spellCost spellEffect)) target board =
+playSpell (card@(SpellCard (AlliedTargetSpell spellName spellCost spellEffect))) target board =
   let target' = spellEffect target
       player = activePlayer board
   in board {
     activePlayer = player {
-      public = replace target target' (public  player)
+      currentMana = currentMana player - spellCost,
+      public = replace target target' (public  player),
+      hand = delete card (hand player)
     }}
 
 playCard :: Card -> Board -> Board
