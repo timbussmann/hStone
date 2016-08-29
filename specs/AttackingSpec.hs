@@ -105,4 +105,4 @@ spec = do
       let result = playSpell spell target board
 
       it "throws an exception" $
-        evaluate result `shouldThrow` anyException
+        evaluate result `shouldThrow` errorCall "Invalid spell target"
