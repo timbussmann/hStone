@@ -16,6 +16,7 @@ cards = [
   MinionCard (Minion "Wisp" 1 1 0 False)
   ]
 
+spells :: [AlliedTargetSpell]
 spells = [
   -- EnemyTargetSpell "Mindcontrol" 10, -- mindcontrol enemy Minion
   -- NonTargetSpell "Vanish" 6, -- return all minions to the hand
@@ -28,5 +29,5 @@ spells = [
   -- NonTargetSpell "Arcane Intellect" 3, -- draw 2 cards
   -- NonTargetSpell "Frost Nova" 3, -- freezes all enemy minions,
   -- EnemyTargetSpell "Shadow Word: Death" 3, -- destroy a minion with 5 power or more
-  AlliedTargetSpell "Divine Spirit" 2 (\m -> m { mhealth = mhealth m * 2}) --double a minion's health
+  AlliedTargetSpell "Divine Spirit" 2 (\m -> m { mhealth = mhealth m * 2}) (public . activePlayer)--double a minion's health
   ]

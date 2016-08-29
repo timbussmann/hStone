@@ -2,7 +2,7 @@ module Game where
 
 import           Data.List
 
-data Card = MinionCard Minion | AlliedSpell AlliedTargetSpell deriving(Show, Eq)
+data Card = MinionCard Minion | AlliedSpell AlliedTargetSpell | Test { t2 :: Int } deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
                       , mpower :: Power
@@ -15,7 +15,8 @@ data Hero = Hero { heroPower :: Power
 
 data AlliedTargetSpell = AlliedTargetSpell  { spellName :: String
                                             , spellCost :: Mana
-                                            , spellEffect :: Minion -> Minion }
+                                            , spellEffect :: Minion -> Minion
+                                            , validTargets :: Board -> [Minion]}
 instance Eq AlliedTargetSpell where
   x == y = spellName x == spellName y
 instance Show AlliedTargetSpell where
@@ -52,7 +53,7 @@ removeDeadMinions board = let ap = activePlayer board
                           where removeDead = filter (\m -> mhealth m <= 0)
 
 playSpell :: AlliedTargetSpell -> Minion -> Board -> Board
-playSpell (spell@(AlliedTargetSpell spellName spellCost spellEffect)) target board =
+playSpell (spell@(AlliedTargetSpell spellName spellCost spellEffect validTargets)) target board =
   let target' = spellEffect target
       player = activePlayer board
   in board {

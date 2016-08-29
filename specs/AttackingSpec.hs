@@ -3,6 +3,7 @@ module AttackingSpec where
 import Test.Hspec
 import Game
 import TestUtils
+import Control.Exception (evaluate)
 
 spec :: Spec
 spec = do
@@ -71,23 +72,37 @@ spec = do
     it "reduces attacker's health by hero's power" $
       (mhealth . head . public) player1 `shouldBe` mhealth attacker - (heroPower . hero) targetPlayer
 
-  describe "when playing target spell on own minion" $ do
-    let target = Minion "target minion" 1 1 0 True
-    let expected = Minion "buffed minion" 12 12 0 True
-    let spell = AlliedTargetSpell "buff" 3 (const expected)
-    let spellCard = AlliedSpell spell
-    let board = Board
-                  createPlayer { public = [target], hand = [spellCard]}
-                  createPlayer
+  describe "Ally targeting spells" $ do
+    describe "when playing spell on own minion" $ do
+      let target = Minion "target minion" 1 1 0 True
+      let expected = Minion "buffed minion" 12 12 0 True
+      let spell = AlliedTargetSpell "buff" 3 (const expected) (public . activePlayer)
+      let spellCard = AlliedSpell spell
+      let board = Board
+                    createPlayer { public = [target], hand = [spellCard]}
+                    createPlayer
 
-    let result = playSpell spell target board
+      let result = playSpell spell target board
 
-    it "removes spell from the hand" $
-      (hand . activePlayer) result `shouldSatisfy` notElem spellCard
+      it "removes spell from the hand" $
+        (hand . activePlayer) result `shouldSatisfy` notElem spellCard
 
-    it "removes spell's mana cost from the player's mana pool" $
-      (currentMana . activePlayer) result `shouldBe` (currentMana . activePlayer) board - 3
+      it "removes spell's mana cost from the player's mana pool" $
+        (currentMana . activePlayer) result `shouldBe` (currentMana . activePlayer) board - 3
 
-    it "casts spell effect on target" $ do
-      (public . activePlayer) result `shouldSatisfy` elem expected
-      (public . activePlayer) result `shouldSatisfy` notElem target
+      it "casts spell effect on target" $ do
+        (public . activePlayer) result `shouldSatisfy` elem expected
+        (public . activePlayer) result `shouldSatisfy` notElem target
+
+    describe "when selecting invalid spell target" $ do
+      let target = Minion "target minion" 1 1 0 True
+      let spell = AlliedTargetSpell "buff" 3 id (public . activePlayer)
+      let spellCard = AlliedSpell spell
+      let board = Board
+                    createPlayer { public = [Minion "other minion" 2 2 0 True], hand = [spellCard]}
+                    createPlayer
+
+      let result = playSpell spell target board
+
+      it "throws an exception" $
+        evaluate result `shouldThrow` anyException
