@@ -20,7 +20,7 @@ spec = do
                                , totalMana = 10 }
     let board = Board player1 createPlayer
 
-    let rBoard = playCard card board
+    let rBoard = playMinion minion board
     let rPlayer = activePlayer rBoard
 
     it "places the card on the active player's board" $ do
@@ -158,6 +158,5 @@ spec = do
 
 --TODO: input verification
 --TODO: use states to generate unique players, cards, etc
---TODO: cards with buffs, effects
---TODO: spell cards (non-minions)
+--TODO: specs for each spell effect
 --TODO: taunt

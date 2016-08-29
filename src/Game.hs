@@ -29,8 +29,6 @@ instance Show Spell where
 instance Eq Spell where
   x == y = spellName x == spellName y
 
---instance (NonTargetSpell a b) Show where
-
 data Player = Player { name        :: String
                      , hand        :: [Card]
                      , public      :: [Minion]
@@ -57,23 +55,23 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m <= 0)
 
-playSpell :: Card -> Minion -> Board -> Board
-playSpell (card@(SpellCard (AlliedTargetSpell spellName spellCost spellEffect))) target board =
+playSpell :: Spell -> Minion -> Board -> Board
+playSpell (spell@(AlliedTargetSpell spellName spellCost spellEffect)) target board =
   let target' = spellEffect target
       player = activePlayer board
   in board {
     activePlayer = player {
       currentMana = currentMana player - spellCost,
       public = replace target target' (public  player),
-      hand = delete card (hand player)
+      hand = delete (SpellCard spell) (hand player)
     }}
 
-playCard :: Card -> Board -> Board
-playCard (c@(MinionCard minion)) board =    let p = activePlayer board
-                                                p' = p { public = minion { mactive = False }  : public p
-                                                , hand = delete c (hand p)
-                                                , currentMana = currentMana p - mcost minion }
-                                            in board { activePlayer = p'}
+playMinion :: Minion -> Board -> Board
+playMinion minion board = let p = activePlayer board
+                              p' = p { public = minion { mactive = False }  : public p
+                              , hand = delete (MinionCard minion) (hand p)
+                              , currentMana = currentMana p - mcost minion }
+                          in board { activePlayer = p'}
 
 minionFromCard :: Card -> Minion
 minionFromCard (MinionCard minion) = minion { mactive = False }

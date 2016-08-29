@@ -74,12 +74,13 @@ spec = do
   describe "when playing target spell on own minion" $ do
     let target = Minion "target minion" 1 1 0 True
     let expected = Minion "buffed minion" 12 12 0 True
-    let spellCard = SpellCard (AlliedTargetSpell "buff" 3 (const expected))
+    let spell = AlliedTargetSpell "buff" 3 (const expected)
+    let spellCard = SpellCard spell
     let board = Board
                   createPlayer { public = [target], hand = [spellCard]}
                   createPlayer
 
-    let result = playSpell spellCard target board
+    let result = playSpell spell target board
 
     it "removes spell from the hand" $
       (hand . activePlayer) result `shouldSatisfy` notElem spellCard

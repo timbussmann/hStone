@@ -70,8 +70,9 @@ handle (Just b) ("end":_) = do
 handle (Just b) ("put":cardId:_) = do
   let cardToPlay = getCardById b cardId
   putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
-  let b' = boardAction b (playCard cardToPlay)
+  let b' = playCard b cardToPlay
   return $ Just b'
+  where playCard b (MinionCard minion) = boardAction b (playMinion minion)
 handle (Just b) ("attack":attackerId:targetId:_) = do
   let attacker = getMinionById b attackerId
   let target = getMinionById b targetId
