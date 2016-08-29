@@ -75,7 +75,7 @@ spec = do
     let target = Minion "target minion" 1 1 0 True
     let expected = Minion "buffed minion" 12 12 0 True
     let spell = AlliedTargetSpell "buff" 3 (const expected)
-    let spellCard = SpellCard spell
+    let spellCard = AlliedSpell spell
     let board = Board
                   createPlayer { public = [target], hand = [spellCard]}
                   createPlayer

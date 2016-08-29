@@ -2,7 +2,7 @@ module Game where
 
 import           Data.List
 
-data Card = MinionCard Minion | SpellCard Spell deriving(Show, Eq)
+data Card = MinionCard Minion | AlliedSpell AlliedTargetSpell deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
                       , mpower :: Power
@@ -13,21 +13,13 @@ data Minion = Minion { mname :: String
 data Hero = Hero { heroPower :: Power
                  , heroHealth :: Health } deriving(Show, Eq)
 
-data Spell = NonTargetSpell { spellName :: String
-                            , spellCost :: Mana }
-           | AlliedTargetSpell  { spellName :: String
-                                , spellCost :: Mana
-                                , spellEffect :: Minion -> Minion }
-           | EnemyTargetSpell { spellName :: String
-                              , spellCost :: Mana }
-
-instance Show Spell where
-  show = spellName
-  -- show (NonTargetSpell name cost) = name
-  -- show (AlliedTargetSpell name _ _ _) = name
-  -- show (EnemyTargetSpell name _) = name
-instance Eq Spell where
+data AlliedTargetSpell = AlliedTargetSpell  { spellName :: String
+                                            , spellCost :: Mana
+                                            , spellEffect :: Minion -> Minion }
+instance Eq AlliedTargetSpell where
   x == y = spellName x == spellName y
+instance Show AlliedTargetSpell where
+  show = spellName
 
 data Player = Player { name        :: String
                      , hand        :: [Card]
@@ -59,7 +51,7 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m <= 0)
 
-playSpell :: Spell -> Minion -> Board -> Board
+playSpell :: AlliedTargetSpell -> Minion -> Board -> Board
 playSpell (spell@(AlliedTargetSpell spellName spellCost spellEffect)) target board =
   let target' = spellEffect target
       player = activePlayer board
@@ -67,7 +59,7 @@ playSpell (spell@(AlliedTargetSpell spellName spellCost spellEffect)) target boa
     activePlayer = player {
       currentMana = currentMana player - spellCost,
       public = replace target target' (public  player),
-      hand = delete (SpellCard spell) (hand player)
+      hand = delete (AlliedSpell spell) (hand player)
     }}
 
 playMinion :: Minion -> Board -> Board
