@@ -82,7 +82,12 @@ spec = do
                     createPlayer { public = [target], hand = [spellCard]}
                     createPlayer
 
-      let result = playSpell spell target board
+      let targets = playSpell board spell
+      let result = snd targets target
+
+      it "only provides own minions as targets" $ do
+        fst targets `shouldSatisfy` elem target
+        length (fst targets) `shouldBe` 1
 
       it "removes spell from the hand" $
         (hand . activePlayer) result `shouldSatisfy` notElem spellCard
@@ -102,7 +107,7 @@ spec = do
                     createPlayer { public = [Minion "other minion" 2 2 0 True], hand = [spellCard]}
                     createPlayer
 
-      let result = playSpell spell target board
+      let result = snd (playSpell board spell) target
 
       it "throws an exception" $
         evaluate result `shouldThrow` errorCall "Invalid spell target"

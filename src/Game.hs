@@ -52,18 +52,18 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m <= 0)
 
-playSpell :: AlliedTargetSpell -> Minion -> Board -> Board
-playSpell spell target board =
-  let target' = spellEffect spell target
-      player = activePlayer board
-  in  if target `elem` validTargets spell board
-      then  board {
-              activePlayer = player {
-                currentMana = currentMana player - spellCost spell,
-                public = replace target target' (public  player),
-                hand = delete (AlliedSpell spell) (hand player)
-              }}
-      else  error "Invalid spell target"
+playSpell :: Board -> AlliedTargetSpell -> ([Minion], Minion -> Board)
+playSpell board spell =  let targets = validTargets spell board
+                             player = activePlayer board
+                          in (targets, \t ->
+                            if t `elem` targets
+                              then board {
+                                      activePlayer = player {
+                                        currentMana = currentMana player - spellCost spell,
+                                        public = replace t (spellEffect spell t) (public  player),
+                                        hand = delete (AlliedSpell spell) (hand player)
+                                      }}
+                              else  error "Invalid spell target")
 
 playMinion :: Minion -> Board -> Board
 playMinion minion board = let p = activePlayer board
