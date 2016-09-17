@@ -79,11 +79,12 @@ minionAttack :: Minion -> Minion -> (Minion, Minion)
 minionAttack attacker target = ( damage attacker (mpower target)
                                , damage target (mpower attacker))
 
-attack :: Minion -> Minion -> Board -> Board
-attack attacker target (Board player1 player2) = let (a, t) = minionAttack attacker target in
-    Board (updatePublicCards player1 attacker (a { mactive = False })) (updatePublicCards player2 target t)
-    where
-      updatePublicCards player original new = player { public = replace original new (public player) }
+attack :: Minion -> Board -> ([Minion], Minion -> Board)
+attack attacker (Board activePlayer enemyPlayer) = (public enemyPlayer, \target ->
+  let (a, t) = minionAttack attacker target
+  in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t))
+  where
+    updatePublicCards player original new = player { public = replace original new (public player) }
 
 attackPlayer :: Board -> Minion -> Board
 attackPlayer (Board player1 player2) attacker = Board
