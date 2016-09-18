@@ -81,8 +81,12 @@ minionAttack attacker target = ( damage attacker (mpower target)
 
 attack :: Minion -> Board -> ([Minion], Minion -> Board)
 attack attacker (Board activePlayer enemyPlayer) = (public enemyPlayer, \target ->
-  let (a, t) = minionAttack attacker target
-  in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t))
+  if target `elem` public enemyPlayer
+    then
+      let (a, t) = minionAttack attacker target
+      in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
+    else
+      error "Invalid target")
   where
     updatePublicCards player original new = player { public = replace original new (public player) }
 

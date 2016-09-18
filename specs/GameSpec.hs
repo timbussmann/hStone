@@ -156,7 +156,6 @@ spec = do
       it "returns the winner" $
         result `shouldBe` inactivePlayer board
 
---TODO: input verification
 --TODO: use states to generate unique players, cards, etc
 --TODO: specs for each spell effect
 --TODO: taunt

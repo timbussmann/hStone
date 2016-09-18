@@ -9,6 +9,23 @@ spec :: Spec
 spec = do
   describe "attacking with a minion" $ do
     let attacker = Minion "attacker" 2 6 0 True
+    let targets = [ Minion "target1" 1 5 0 True
+                  , Minion "target2" 1 5 0 True
+                  , Minion "target3" 1 5 0 True ]
+    let board = Board
+                  (createPlayer  { public = [attacker] })
+                  (createPlayer { public = targets })
+
+    let action = attack attacker board
+
+    it "lists enemy minions as targets" $
+      fst action `shouldSatisfy` (targets ==)
+    describe "attacking an invalid target" $
+      it "throws an exception" $
+        evaluate (snd action (Minion "invalid target" 1 1 0 True)) `shouldThrow` errorCall "Invalid target"
+
+  describe "attacking a minion" $ do
+    let attacker = Minion "attacker" 2 6 0 True
     let target = Minion "target" 1 5 0 True
     let board = Board
                   (createPlayer  { public = [attacker] })
