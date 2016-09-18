@@ -76,7 +76,7 @@ handle (Just b) ("put":cardId:_) = do
 handle (Just b) ("attack":attackerId:targetId:_) = do
   let attacker = getMinionById b attackerId
   let target = getMinionById b targetId
-  let b' = boardAction b (\board -> snd (attack attacker board) target)
+  let b' = boardAction b (\board -> snd (attack attacker board) (MinionTarget target))
   return $ Just b'
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c

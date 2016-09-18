@@ -4,6 +4,7 @@ import Test.Hspec
 import Game
 import TestUtils
 import Control.Exception (evaluate)
+import Data.List
 
 spec :: Spec
 spec = do
@@ -19,10 +20,14 @@ spec = do
     let action = attack attacker board
 
     it "lists enemy minions as targets" $
-      fst action `shouldSatisfy` (targets ==)
+      fst action `shouldSatisfy` isInfixOf (map MinionTarget targets)
+
+    it "lists enemy hero as target" $
+      fst action `shouldSatisfy` elem (HeroTarget ((hero . inactivePlayer) board))
+
     describe "attacking an invalid target" $
       it "throws an exception" $
-        evaluate (snd action (Minion "invalid target" 1 1 0 True)) `shouldThrow` errorCall "Invalid target"
+        evaluate (snd action (MinionTarget (Minion "invalid target" 1 1 0 True))) `shouldThrow` errorCall "Invalid target"
 
   describe "attacking a minion" $ do
     let attacker = Minion "attacker" 2 6 0 True
@@ -31,7 +36,7 @@ spec = do
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
 
-    let (Board player1 player2) = snd (attack attacker board) target
+    let (Board player1 player2) = snd (attack attacker board) (MinionTarget target)
 
     it "reduces target's health by attacker's power" $
       (mhealth . head . public) player2 `shouldBe` mhealth target - mpower attacker
@@ -50,7 +55,7 @@ spec = do
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
 
-    let (Board player1 player2) = snd (attack attacker board) target
+    let (Board player1 player2) = snd (attack attacker board) (MinionTarget target)
 
     it "removes attacked minion from the owner's board" $
       public player2 `shouldSatisfy` notElem target
@@ -66,7 +71,7 @@ spec = do
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
 
-    let (Board player1 player2) = snd (attack attacker board) target
+    let (Board player1 player2) = snd (attack attacker board) (MinionTarget target)
 
     it "removes attacking minion from the owner's board" $
       public player1 `shouldSatisfy` notElem target

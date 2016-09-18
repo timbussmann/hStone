@@ -13,6 +13,8 @@ data Minion = Minion { mname :: String
 data Hero = Hero { heroPower :: Power
                  , heroHealth :: Health } deriving(Show, Eq)
 
+data Target = MinionTarget Minion | HeroTarget Hero deriving(Show, Eq)
+
 data AlliedTargetSpell = AlliedTargetSpell  { spellName :: String
                                             , spellCost :: Mana
                                             , spellEffect :: Minion -> Minion
@@ -79,14 +81,17 @@ minionAttack :: Minion -> Minion -> (Minion, Minion)
 minionAttack attacker target = ( damage attacker (mpower target)
                                , damage target (mpower attacker))
 
-attack :: Minion -> Board -> ([Minion], Minion -> Board)
-attack attacker (Board activePlayer enemyPlayer) = (public enemyPlayer, \target ->
-  if target `elem` public enemyPlayer
-    then
-      let (a, t) = minionAttack attacker target
-      in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
-    else
-      error "Invalid target")
+attack :: Minion -> Board -> ([Target], Target -> Board)
+attack attacker (Board activePlayer enemyPlayer) =
+  let heroTarget = HeroTarget (hero enemyPlayer)
+      minionTargets = map MinionTarget (public enemyPlayer)
+  in (heroTarget : minionTargets, \(MinionTarget target) ->
+      if target `elem` public enemyPlayer
+        then
+          let (a, t) = minionAttack attacker target
+          in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
+        else
+          error "Invalid target")
   where
     updatePublicCards player original new = player { public = replace original new (public player) }
 
