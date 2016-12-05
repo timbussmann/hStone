@@ -86,7 +86,7 @@ spec = do
                     createPlayer { public = [attacker] }
                     targetPlayer
 
-    let (Board player1 player2) = attackPlayer board attacker
+    let (Board player1 player2) = snd (attack attacker board) (HeroTarget (hero targetPlayer))
 
     it "reduces attacked hero's health" $
       (heroHealth . hero) player2 `shouldBe` (heroHealth . hero) targetPlayer - mpower attacker

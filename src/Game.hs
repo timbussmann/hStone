@@ -85,20 +85,32 @@ attack :: Minion -> Board -> ([Target], Target -> Board)
 attack attacker (Board activePlayer enemyPlayer) =
   let heroTarget = HeroTarget (hero enemyPlayer)
       minionTargets = map MinionTarget (public enemyPlayer)
-  in (heroTarget : minionTargets, \(MinionTarget target) ->
-      if target `elem` public enemyPlayer
-        then
-          let (a, t) = minionAttack attacker target
-          in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
-        else
-          error "Invalid target")
+  in (heroTarget : minionTargets, targetSelected)
   where
+    targetSelected (MinionTarget target) =
+      if target `elem` public enemyPlayer
+      then
+        let (a, t) = minionAttack attacker target
+        in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
+      else error "Invalid target"
+    targetSelected (HeroTarget target) =
+      if target == hero enemyPlayer
+      then
+        let (a, t) = minionHeroAttack attacker target
+        in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updateHero enemyPlayer t)
+      else error "Invalid target"
     updatePublicCards player original new = player { public = replace original new (public player) }
+    updateHero player new = player { hero = new }
 
-attackPlayer :: Board -> Minion -> Board
-attackPlayer (Board player1 player2) attacker = Board
-                                                  player1 { public = replace attacker (damage attacker ((heroPower . hero) player2)) (public player1)}
-                                                  (removeHp player2 (mpower attacker))
+minionHeroAttack :: Minion -> Hero -> (Minion, Hero)
+minionHeroAttack minion hero = ( damage minion (heroPower hero)
+                               , hero { heroHealth = heroHealth hero - mpower minion})
+
+--TODO: remove:
+-- attackPlayer :: Board -> Minion -> Board
+-- attackPlayer (Board player1 player2) attacker = Board
+--                                                   player1 { public = replace attacker (damage attacker ((heroPower . hero) player2)) (public player1)}
+--                                                   (removeHp player2 (mpower attacker))
 
 replace :: (Eq a) => a -> a -> [a] -> [a]
 replace search new = map (\x -> if x == search then new else x)

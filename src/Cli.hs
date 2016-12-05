@@ -8,6 +8,7 @@ import           Cards
 import           System.IO
 import           Text.Printf
 import           Data.Maybe
+import           Data.Char
 
 handPrefix = 'h'
 playerPublicPrefix = 'p'
@@ -73,10 +74,12 @@ handle (Just b) ("put":cardId:_) = do
   let b' = playCard b cardToPlay
   return $ Just b'
   where playCard b (MinionCard minion) = boardAction b (playMinion minion)
-handle (Just b) ("attack":attackerId:targetId:_) = do
+handle (Just b) ("attack":attackerId:_) = do
   let attacker = getMinionById b attackerId
-  let target = getMinionById b targetId
-  let b' = boardAction b (\board -> snd (attack attacker board) (MinionTarget target))
+  let attackAction = attack attacker b
+  forM_ (fst attackAction) printTarget
+  targetIndex <- getChar >>= \c -> return (digitToInt c)
+  let b' = boardAction b (\board -> snd (attack attacker board) (fst attackAction !! targetIndex))
   return $ Just b'
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
@@ -94,6 +97,10 @@ printBoard b = do
   putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (heroHealth (hero p2)) (currentMana p2) (totalMana p2)
   putStrLn "Public:"
   printMinions (public p2) enemyPublicPrefix
+
+printTarget :: Target -> IO ()
+printTarget (MinionTarget minion) = putStrLn $ printf "%s %d HP %d AP" (mname minion) (mhealth minion) (mpower minion)
+printTarget (HeroTarget hero) = putStrLn $ printf "Hero %d HP %d AP" (heroHealth hero) (heroPower hero)
 
 printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
