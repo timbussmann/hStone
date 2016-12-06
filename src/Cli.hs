@@ -52,7 +52,7 @@ handle b ("help":_) = do
   putStrLn "start = start a new game"
   putStrLn "end = end the current turn"
   putStrLn "put {cardId} = puts the selected card on the public board"
-  putStrLn "attack {attackerId} {targetId} = attacks the target with the given attacker"
+  putStrLn "attack {attackerId} = attacks the target with the given attacker"
   return (b >>= \x -> Just(x, Nothing))
 handle Nothing ("start":_) = do
   let board = endTurn createNewBoard
@@ -77,6 +77,7 @@ handle (Just b) ("put":cardId:_) = do
 handle (Just b) ("attack":attackerId:_) = do
   let attacker = getMinionById b attackerId
   let attackAction = attack attacker b
+  putStrLn "select target:"
   forM_ (fst attackAction) printTarget
   targetIndex <- getChar >>= \c -> return (digitToInt c)
   let b' = boardAction b (\board -> snd (attack attacker board) (fst attackAction !! targetIndex))
