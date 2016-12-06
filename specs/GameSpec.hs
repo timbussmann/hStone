@@ -20,7 +20,7 @@ spec = do
                                , totalMana = 10 }
     let board = Board player1 createPlayer
 
-    let rBoard = playMinion minion board
+    let rBoard = fst (boardAction board (playMinion minion))
     let rPlayer = activePlayer rBoard
 
     it "places the card on the active player's board" $ do

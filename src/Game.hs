@@ -52,7 +52,7 @@ removeDeadMinions board = let ap = activePlayer board
                             activePlayer = ap { public = removeDead activePlayerCards },
                             inactivePlayer = iap { public = removeDead inactivePlayerCards }
                           }
-                          where removeDead = filter (\m -> mhealth m <= 0)
+                          where removeDead = filter (\m -> mhealth m > 0)
 
 playSpell :: Board -> AlliedTargetSpell -> ([Minion], Minion -> Board)
 playSpell board spell =  let targets = validTargets spell board
