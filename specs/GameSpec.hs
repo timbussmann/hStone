@@ -157,6 +157,5 @@ spec = do
         result `shouldBe` inactivePlayer board
 
 --TODO: use states to generate unique players, cards, etc
---TODO: specs for each spell effect
 --TODO: taunt
 --TODO: save/load game

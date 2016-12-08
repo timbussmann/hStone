@@ -2,7 +2,7 @@ module Game where
 
 import           Data.List
 
-data Card = MinionCard Minion | AlliedSpell AlliedTargetSpell | Test { t2 :: Int } deriving(Show, Eq)
+data Card = MinionCard Minion | AlliedSpell AlliedTargetSpell deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
                       , mpower :: Power
@@ -105,12 +105,6 @@ attack attacker (Board activePlayer enemyPlayer) =
 minionHeroAttack :: Minion -> Hero -> (Minion, Hero)
 minionHeroAttack minion hero = ( damage minion (heroPower hero)
                                , hero { heroHealth = heroHealth hero - mpower minion})
-
---TODO: remove:
--- attackPlayer :: Board -> Minion -> Board
--- attackPlayer (Board player1 player2) attacker = Board
---                                                   player1 { public = replace attacker (damage attacker ((heroPower . hero) player2)) (public player1)}
---                                                   (removeHp player2 (mpower attacker))
 
 replace :: (Eq a) => a -> a -> [a] -> [a]
 replace search new = map (\x -> if x == search then new else x)
