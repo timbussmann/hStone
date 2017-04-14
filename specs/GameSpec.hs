@@ -155,7 +155,3 @@ spec = do
 
       it "returns the winner" $
         result `shouldBe` inactivePlayer board
-
---TODO: use states to generate unique players, cards, etc
---TODO: taunt
---TODO: save/load game

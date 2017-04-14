@@ -1,3 +1,10 @@
+
+--TODO: use states to generate unique players, cards, etc
+--TODO: taunt
+--TODO: save/load game
+--TODO: bug: when having same spelltarget minion multiple times (or both players) it applies to both
+        -- > make cards unique
+        
 module Game where
 
 import           Data.List
