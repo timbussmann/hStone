@@ -1,0 +1,4 @@
+{
+    "haskell.ghcMod.maxNumberOfProblems": 100,
+    "haskell.ghcMod.check": "onSave"
+}
