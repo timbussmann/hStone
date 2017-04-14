@@ -28,6 +28,7 @@ spells = [
   -- EnemyTargetSpell "Polymorph" 4, -- transforms a minion into a sheep
   -- NonTargetSpell "Arcane Intellect" 3, -- draw 2 cards
   -- NonTargetSpell "Frost Nova" 3, -- freezes all enemy minions,
-  -- EnemyTargetSpell "Shadow Word: Death" 3, -- destroy a minion with 5 power or more
-  AlliedTargetSpell "Divine Spirit" 2 (\m -> m { mhealth = mhealth m * 2}) (public . activePlayer)--double a minion's health
+  AlliedTargetSpell "Divine Spirit" 2 (\m -> m { mhealth = mhealth m * 2}) (public . activePlayer),  -- destroy a minion with 5 power or more
+  AlliedTargetSpell "Shadow Word: Death" 3 (\m -> m { mhealth = 0 }) (\b -> filter (\m -> mpower m >= 5) (public $ inactivePlayer b)) --double a minion's health
   ]
+
