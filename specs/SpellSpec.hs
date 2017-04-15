@@ -15,7 +15,7 @@ spec = do
     let target = Minion "target minion" 1 2 0 True
     let spellCard = head spells
     let board = Board
-                  createPlayer { public = [target], hand = [AlliedSpell spellCard]}
+                  createPlayer { public = [target], hand = [SingleTargetSpell spellCard]}
                   createPlayer
 
     let result = fst (boardAction board (\b -> let (targets, select) = playSpell b spellCard
@@ -30,7 +30,7 @@ spec = do
     let target5ap = Minion "5 ap" 5 10 0 True
     let target6ap = Minion "6 ap" 6 10 0 True
     let board = Board
-                  createPlayer { hand = [AlliedSpell spellCard]}
+                  createPlayer { hand = [SingleTargetSpell spellCard]}
                   createPlayer { public = [target4ap, target5ap, target6ap]}
     
     

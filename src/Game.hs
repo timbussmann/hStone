@@ -9,7 +9,7 @@ module Game where
 
 import           Data.List
 
-data Card = MinionCard Minion | AlliedSpell AlliedTargetSpell deriving(Show, Eq)
+data Card = MinionCard Minion | SingleTargetSpell AlliedTargetSpell deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
                       , mpower :: Power
@@ -71,7 +71,7 @@ playSpell board spell =  let targets = validTargets spell board
                                       activePlayer = player {
                                         currentMana = currentMana player - spellCost spell,
                                         public = replace t (spellEffect spell t) (public player),
-                                        hand = delete (AlliedSpell spell) (hand player)
+                                        hand = delete (SingleTargetSpell spell) (hand player)
                                       },
                                       inactivePlayer = enemy {
                                         public = replace t (spellEffect spell t) (public enemy)

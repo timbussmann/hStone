@@ -99,7 +99,7 @@ spec = do
       let target = Minion "target minion" 1 1 0 True
       let expected = Minion "buffed minion" 12 12 0 True
       let spell = AlliedTargetSpell "buff" 3 (const expected) (public . activePlayer)
-      let spellCard = AlliedSpell spell
+      let spellCard = SingleTargetSpell spell
       let board = Board
                     createPlayer { public = [target], hand = [spellCard]}
                     createPlayer
@@ -124,7 +124,7 @@ spec = do
     describe "when selecting invalid spell target" $ do
       let target = Minion "target minion" 1 1 0 True
       let spell = AlliedTargetSpell "buff" 3 id (public . activePlayer)
-      let spellCard = AlliedSpell spell
+      let spellCard = SingleTargetSpell spell
       let board = Board
                     createPlayer { public = [Minion "other minion" 2 2 0 True], hand = [spellCard]}
                     createPlayer
