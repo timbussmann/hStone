@@ -12,7 +12,7 @@ spec :: Spec
 spec = do
   describe "playing a minion card" $ do
     let minion = Minion "" 1 3 True
-    let card = NewCard "minion" 5 (CreateMinion minion)
+    let card = Card "minion" 5 (CreateMinion minion)
     let player1 = createPlayer { hand = [card]
                                , public = []
                                , deck = []
@@ -48,7 +48,7 @@ spec = do
     let player2 = createPlayer { name = "p2"
                          , hand = []
                          , public = [ Minion "m1" 1 1 False, Minion "m2" 2 2 False ]
-                         , deck = [NewCard "c1" 1 (CreateMinion (Minion "1" 1 1 False)), NewCard "c2" 2 (CreateMinion (Minion "2" 2 2 False))]
+                         , deck = [Card "c1" 1 (CreateMinion (Minion "1" 1 1 False)), Card "c2" 2 (CreateMinion (Minion "2" 2 2 False))]
                          , currentMana = 2
                          , totalMana = 4 }
 
@@ -156,6 +156,6 @@ spec = do
       it "returns the winner" $
         result `shouldBe` inactivePlayer board
 
-playMinion :: NewCard -> Board -> Board
+playMinion :: Card -> Board -> Board
 playMinion minionCard board = handleMinionInteraction (playCard minionCard board)
   where handleMinionInteraction (None board) = board

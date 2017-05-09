@@ -25,7 +25,7 @@ spec = do
       (mhealth . head . public . activePlayer) result `shouldBe` mhealth target * 2
 
   describe "Shadow Word: Death" $ do
-    let spellCard = fromJust $ find (\(NewCard name _ _) -> name == "Shadow Word: Death") spells
+    let spellCard = fromJust $ find (\(Card name _ _) -> name == "Shadow Word: Death") spells
     let target4ap = Minion "4 ap" 4 10 True
     let target5ap = Minion "5 ap" 5 10 True
     let target6ap = Minion "6 ap" 6 10 True

@@ -101,7 +101,7 @@ printTarget :: Target -> IO ()
 printTarget (MinionTarget minion) = putStrLn $ printf "%s %d HP %d AP" (mname minion) (mhealth minion) (mpower minion)
 printTarget (HeroTarget hero) = putStrLn $ printf "Hero %d HP %d AP" (heroHealth hero) (heroPower hero)
 
-printCards :: [NewCard] -> Char -> IO ()
+printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
 printCards cards prefix = foldM_
   (\i minion -> putStrLn "todo")
@@ -116,7 +116,7 @@ printMinions minions prefix = foldM_
   (1 :: Int)
   minions
 
-getCardById :: Board -> String -> NewCard
+getCardById :: Board -> String -> Card
 getCardById b identifier = let (prefix, index) = split identifier
                            in getCards prefix !! (index - 1)
                            where split (x:xs) = (x, read xs :: Int)

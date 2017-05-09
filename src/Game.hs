@@ -20,10 +20,13 @@ data Effect =
   CreateMinion Minion | 
   TargetSpell (Board -> [Minion]) (Minion -> Minion)
 
-data NewCard = NewCard  { cname :: String 
-                        , ccost :: Mana
-                        , ceffect :: Effect } deriving(Show)
-instance Eq NewCard where
+data Card = Card { 
+  cname :: String,
+  ccost :: Mana, 
+  ceffect :: Effect 
+  } deriving(Show)
+
+instance Eq Card where
   x == y = cname x == cname y
 
 data Minion = Minion {  mname :: String
@@ -51,9 +54,9 @@ instance Eq Effect where
  x == y = False
 
 data Player = Player { name        :: String
-                     , hand        :: [NewCard]
+                     , hand        :: [Card]
                      , public      :: [Minion]
-                     , deck        :: [NewCard]
+                     , deck        :: [Card]
                      , hero        :: Hero
                      , totalMana   :: Mana
                      , currentMana :: Mana } deriving(Show, Eq)
@@ -80,7 +83,7 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m > 0)
 
-playCard :: NewCard -> Board -> UserInteraction
+playCard :: Card -> Board -> UserInteraction
 playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card)) board
                       in handleEffect b $ ceffect card
   where handleEffect board (CreateMinion minion) =  
