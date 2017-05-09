@@ -30,7 +30,6 @@ start = do
         checkForWinner b')
     Nothing
 
-
 loop :: (Maybe Board -> IO (Bool, Maybe Board)) -> Maybe Board -> IO ()
 loop action board = do
   result <- action board
@@ -71,9 +70,8 @@ handle (Just b) ("end":_) = do
 handle (Just b) ("put":cardId:_) = do
   let cardToPlay = getCardById b cardId
   putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
-  let b' = playCard b cardToPlay
+  let b' =  boardAction b (handleUserInteraction . playCard cardToPlay)
   return $ Just b'
-  where playCard b (MinionCard minion) = boardAction b (playMinion minion)
 handle (Just b) ("attack":attackerId:_) = do
   let attacker = getMinionById b attackerId
   let attackAction = attack attacker b
@@ -103,12 +101,13 @@ printTarget :: Target -> IO ()
 printTarget (MinionTarget minion) = putStrLn $ printf "%s %d HP %d AP" (mname minion) (mhealth minion) (mpower minion)
 printTarget (HeroTarget hero) = putStrLn $ printf "Hero %d HP %d AP" (heroHealth hero) (heroPower hero)
 
-printCards :: [Card] -> Char -> IO ()
+printCards :: [NewCard] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
 printCards cards prefix = foldM_
-  (\i (MinionCard minion) -> putStrLn (printf "[%c%d] %s %d HP %d AP" prefix i (mname minion) (mhealth minion) (mpower minion)) >>= \_ -> return (i + 1))
-  (1 :: Int)
+  (\i minion -> putStrLn "todo")
+  ()
   cards
+  --(\i (MinionCard minion) -> putStrLn (printf "[%c%d] %s %d HP %d AP" prefix i (mname minion) (mhealth minion) (mpower minion)) >>= \_ -> return (i + 1))
 
 printMinions :: [Minion] -> Char -> IO ()
 printMinions [] _ = putStrLn "-"
@@ -117,7 +116,7 @@ printMinions minions prefix = foldM_
   (1 :: Int)
   minions
 
-getCardById :: Board -> String -> Card
+getCardById :: Board -> String -> NewCard
 getCardById b identifier = let (prefix, index) = split identifier
                            in getCards prefix !! (index - 1)
                            where split (x:xs) = (x, read xs :: Int)
@@ -131,6 +130,10 @@ getMinionById b identifier = let (prefix, index) = split identifier
                                  getCards x
                                   | x == playerPublicPrefix = public $ activePlayer b
                                   | x == enemyPublicPrefix = public $ inactivePlayer b
+
+handleUserInteraction :: UserInteraction -> Board
+handleUserInteraction (None board) = board
+--todo implement target spells (will require a switch to IO)
 
 createNewBoard :: Board
 createNewBoard =

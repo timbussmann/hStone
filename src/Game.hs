@@ -4,11 +4,22 @@
 --TODO: save/load game
 --TODO: bug: when having same spelltarget minion multiple times (or both players) it applies to both
         -- > make cards unique
+
+-- Card -> (CardInfo, Effect)
+-- don't expose boardAction, expose specific operations using boardAction internally?
         
 module Game where
 
 import           Data.List
 
+data UserInteraction = None Board | SelectSingleTarget [Minion] (Minion -> Board)
+data Effect = CreateMinion Minion | TargetSpell (Board -> [Minion]) (Minion -> Minion)
+data NewCard = NewCard  { cname :: String 
+                        , ccost :: Mana
+                        , ceffect :: Effect } deriving(Show)
+instance Eq NewCard where
+  x == y = cname x == cname y
+  
 data Card = MinionCard Minion | SingleTargetSpell AlliedTargetSpell deriving(Show, Eq)
 
 data Minion = Minion { mname :: String
@@ -31,10 +42,15 @@ instance Eq AlliedTargetSpell where
 instance Show AlliedTargetSpell where
   show = spellName
 
+instance Show Effect where
+  show _ = "todo"
+instance Eq Effect where
+ x == y = False
+
 data Player = Player { name        :: String
-                     , hand        :: [Card]
+                     , hand        :: [NewCard]
                      , public      :: [Minion]
-                     , deck        :: [Card]
+                     , deck        :: [NewCard]
                      , hero        :: Hero
                      , totalMana   :: Mana
                      , currentMana :: Mana } deriving(Show, Eq)
@@ -61,29 +77,52 @@ removeDeadMinions board = let ap = activePlayer board
                           }
                           where removeDead = filter (\m -> mhealth m > 0)
 
-playSpell :: Board -> AlliedTargetSpell -> ([Minion], Minion -> Board)
-playSpell board spell =  let targets = validTargets spell board
-                             player = activePlayer board
-                             enemy = inactivePlayer board
-                          in (targets, \t ->
-                            if t `elem` targets
-                              then board {
-                                      activePlayer = player {
-                                        currentMana = currentMana player - spellCost spell,
-                                        public = replace t (spellEffect spell t) (public player),
-                                        hand = delete (SingleTargetSpell spell) (hand player)
-                                      },
-                                      inactivePlayer = enemy {
-                                        public = replace t (spellEffect spell t) (public enemy)
-                                      }}
-                              else  error "Invalid spell target")
+playCard :: NewCard -> Board -> UserInteraction
+playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card)) board
+                      in handleEffect b $ ceffect card
+  where handleEffect board (CreateMinion minion) =  
+          let p = activePlayer board
+              p' = p { public = minion { mactive = False } : public p
+            , hand = delete card (hand p) }
+          in None (board { activePlayer = p' })
 
-playMinion :: Minion -> Board -> Board
-playMinion minion board = let p = activePlayer board
-                              p' = p { public = minion { mactive = False }  : public p
-                              , hand = delete (MinionCard minion) (hand p)
-                              , currentMana = currentMana p - mcost minion }
-                          in board { activePlayer = p'}
+        handleEffect board (TargetSpell selector application) = 
+          let validTargets = selector board
+          in SelectSingleTarget validTargets (\target -> if target `elem` validTargets
+                                                         then let target' = application target
+                                                              in board { 
+                                                                  activePlayer = (activePlayer board) { public = replace target target' (public . activePlayer $ board) },
+                                                                  inactivePlayer = (inactivePlayer board) { public = replace target target' (public . inactivePlayer $ board)}
+                                                                  }
+                                                          else error "Invalid spell target")
+
+        removeSpellCost mana board = let p = activePlayer board in board { activePlayer = p { currentMana = currentMana p - ccost card}}
+
+        removeFromHand card board = let p = activePlayer board in board { activePlayer = p { hand = delete card (hand p)}}
+
+-- playSpell :: Board -> AlliedTargetSpell -> ([Minion], Minion -> Board)
+-- playSpell board spell =  let targets = validTargets spell board
+--                              player = activePlayer board
+--                              enemy = inactivePlayer board
+--                           in (targets, \t ->
+--                             if t `elem` targets
+--                               then board {
+--                                       activePlayer = player {
+--                                         currentMana = currentMana player - spellCost spell,
+--                                         public = replace t (spellEffect spell t) (public player),
+--                                         hand = delete (SingleTargetSpell spell) (hand player)
+--                                       },
+--                                       inactivePlayer = enemy {
+--                                         public = replace t (spellEffect spell t) (public enemy)
+--                                       }}
+--                               else  error "Invalid spell target")
+
+-- playMinion :: Minion -> Board -> Board
+-- playMinion minion board = let p = activePlayer board
+--                               p' = p { public = minion { mactive = False }  : public p
+--                               , hand = delete (MinionCard minion) (hand p)
+--                               , currentMana = currentMana p - mcost minion }
+--                           in board { activePlayer = p'}
 
 minionFromCard :: Card -> Minion
 minionFromCard (MinionCard minion) = minion { mactive = False }

@@ -98,18 +98,13 @@ spec = do
     describe "when playing spell on own minion" $ do
       let target = Minion "target minion" 1 1 0 True
       let expected = Minion "buffed minion" 12 12 0 True
-      let spell = AlliedTargetSpell "buff" 3 (const expected) (public . activePlayer)
-      let spellCard = SingleTargetSpell spell
+      let spellCard = NewCard "spell" 3 (TargetSpell (public . activePlayer) (const expected))
       let board = Board
                     createPlayer { public = [target], hand = [spellCard]}
                     createPlayer
 
-      let targets = playSpell board spell
-      let result = snd targets target
-
-      it "only provides own minions as targets" $ do
-        fst targets `shouldSatisfy` elem target
-        length (fst targets) `shouldBe` 1
+      let interaction = playCard spellCard board
+      let result = selectSpellTarget interaction target
 
       it "removes spell from the hand" $
         (hand . activePlayer) result `shouldSatisfy` notElem spellCard
@@ -123,13 +118,16 @@ spec = do
 
     describe "when selecting invalid spell target" $ do
       let target = Minion "target minion" 1 1 0 True
-      let spell = AlliedTargetSpell "buff" 3 id (public . activePlayer)
-      let spellCard = SingleTargetSpell spell
+      let spellCard = NewCard "spell" 0 (TargetSpell (public . activePlayer) id)
       let board = Board
                     createPlayer { public = [Minion "other minion" 2 2 0 True], hand = [spellCard]}
                     createPlayer
 
-      let result = snd (playSpell board spell) target
+      let interaction = playCard spellCard board
+      let result = selectSpellTarget interaction target
 
       it "throws an exception" $
         evaluate result `shouldThrow` errorCall "Invalid spell target"
+
+selectSpellTarget :: UserInteraction -> Minion -> Board
+selectSpellTarget (SelectSingleTarget targets selector) target = selector target
