@@ -12,7 +12,7 @@ import           Debug.Trace
 spec :: Spec
 spec = do
   describe "Divine Spirit" $ do
-    let target = Minion "target minion" 1 2 0 True
+    let target = Minion "target minion" 1 2 True
     let spellCard = head spells
     let board = Board
                   createPlayer { public = [target], hand = [spellCard]}
@@ -26,9 +26,9 @@ spec = do
 
   describe "Shadow Word: Death" $ do
     let spellCard = fromJust $ find (\(NewCard name _ _) -> name == "Shadow Word: Death") spells
-    let target4ap = Minion "4 ap" 4 10 0 True
-    let target5ap = Minion "5 ap" 5 10 0 True
-    let target6ap = Minion "6 ap" 6 10 0 True
+    let target4ap = Minion "4 ap" 4 10 True
+    let target5ap = Minion "5 ap" 5 10 True
+    let target6ap = Minion "6 ap" 6 10 True
     let board = Board
                   createPlayer { hand = [spellCard]}
                   createPlayer { public = [target4ap, target5ap, target6ap]}

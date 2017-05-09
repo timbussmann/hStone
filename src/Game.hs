@@ -19,13 +19,12 @@ data NewCard = NewCard  { cname :: String
                         , ceffect :: Effect } deriving(Show)
 instance Eq NewCard where
   x == y = cname x == cname y
-  
+
 data Card = MinionCard Minion | SingleTargetSpell AlliedTargetSpell deriving(Show, Eq)
 
-data Minion = Minion { mname :: String
+data Minion = Minion {  mname :: String
                       , mpower :: Power
                       , mhealth :: Health
-                      , mcost :: Mana
                       , mactive :: Bool } deriving(Show, Eq)
 
 data Hero = Hero { heroPower :: Power

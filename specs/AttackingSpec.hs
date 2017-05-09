@@ -9,10 +9,10 @@ import Data.List
 spec :: Spec
 spec = do
   describe "attacking with a minion" $ do
-    let attacker = Minion "attacker" 2 6 0 True
-    let targets = [ Minion "target1" 1 5 0 True
-                  , Minion "target2" 1 5 0 True
-                  , Minion "target3" 1 5 0 True ]
+    let attacker = Minion "attacker" 2 6 True
+    let targets = [ Minion "target1" 1 5 True
+                  , Minion "target2" 1 5 True
+                  , Minion "target3" 1 5 True ]
     let board = Board
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = targets })
@@ -27,11 +27,11 @@ spec = do
 
     describe "attacking an invalid target" $
       it "throws an exception" $
-        evaluate (snd action (MinionTarget (Minion "invalid target" 1 1 0 True))) `shouldThrow` errorCall "Invalid target"
+        evaluate (snd action (MinionTarget (Minion "invalid target" 1 1 True))) `shouldThrow` errorCall "Invalid target"
 
   describe "attacking a minion" $ do
-    let attacker = Minion "attacker" 2 6 0 True
-    let target = Minion "target" 1 5 0 True
+    let attacker = Minion "attacker" 2 6 True
+    let target = Minion "target" 1 5 True
     let board = Board
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
@@ -48,9 +48,9 @@ spec = do
       (mactive . head . public) player1 `shouldBe` False
 
   describe "when attacked minion has no more health" $ do
-    let attacker = Minion "attacker" 10 10 0 True
-    let target = Minion "target" 2 2 0 False
-    let otherCard = Minion "other" 10 10 0 False
+    let attacker = Minion "attacker" 10 10 True
+    let target = Minion "target" 2 2 False
+    let otherCard = Minion "other" 10 10 False
     let board = Board
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
@@ -64,9 +64,9 @@ spec = do
       public player2 `shouldSatisfy` elem otherCard
 
   describe "when attacking minion has no more health" $ do
-    let attacker = Minion "attacker" 2 2 0 True
-    let target = Minion "target" 8 8 0 False
-    let otherCard = Minion "other" 10 10 0 True
+    let attacker = Minion "attacker" 2 2 True
+    let target = Minion "target" 8 8 False
+    let otherCard = Minion "other" 10 10 True
     let board = Board
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
@@ -80,7 +80,7 @@ spec = do
      public player1 `shouldSatisfy` elem otherCard
 
   describe "when attacking enemy hero" $ do
-    let attacker = Minion "attacker" 5 5 0 True
+    let attacker = Minion "attacker" 5 5 True
     let targetPlayer = createPlayer { hero = Hero 2 30 }
     let board = Board
                     createPlayer { public = [attacker] }
@@ -96,8 +96,8 @@ spec = do
 
   describe "Ally targeting spells" $ do
     describe "when playing spell on own minion" $ do
-      let target = Minion "target minion" 1 1 0 True
-      let expected = Minion "buffed minion" 12 12 0 True
+      let target = Minion "target minion" 1 1 True
+      let expected = Minion "buffed minion" 12 12 True
       let spellCard = NewCard "spell" 3 (TargetSpell (public . activePlayer) (const expected))
       let board = Board
                     createPlayer { public = [target], hand = [spellCard]}
@@ -117,10 +117,10 @@ spec = do
         (public . activePlayer) result `shouldSatisfy` notElem target
 
     describe "when selecting invalid spell target" $ do
-      let target = Minion "target minion" 1 1 0 True
+      let target = Minion "target minion" 1 1 True
       let spellCard = NewCard "spell" 0 (TargetSpell (public . activePlayer) id)
       let board = Board
-                    createPlayer { public = [Minion "other minion" 2 2 0 True], hand = [spellCard]}
+                    createPlayer { public = [Minion "other minion" 2 2 True], hand = [spellCard]}
                     createPlayer
 
       let interaction = playCard spellCard board

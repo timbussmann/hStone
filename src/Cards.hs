@@ -3,7 +3,7 @@ module Cards where
 import Game;
 
 cards = [
-  NewCard "Faceless Behemoth" 10 (CreateMinion (Minion "Faceless Behemoth" 10 10 10 False))
+  NewCard "Faceless Behemoth" 10 (CreateMinion (Minion "Faceless Behemoth" 10 10 False))
   -- MinionCard (Minion "Captured Jormungar" 5 9 7 False),
   -- MinionCard (Minion "Core Hound" 9 5 7 False),
   -- MinionCard (Minion "Boulderfist Ogre" 6 7 7 False),
