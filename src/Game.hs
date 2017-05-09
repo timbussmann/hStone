@@ -106,30 +106,6 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
 
         removeFromHand card board = let p = activePlayer board in board { activePlayer = p { hand = delete card (hand p)}}
 
--- playSpell :: Board -> AlliedTargetSpell -> ([Minion], Minion -> Board)
--- playSpell board spell =  let targets = validTargets spell board
---                              player = activePlayer board
---                              enemy = inactivePlayer board
---                           in (targets, \t ->
---                             if t `elem` targets
---                               then board {
---                                       activePlayer = player {
---                                         currentMana = currentMana player - spellCost spell,
---                                         public = replace t (spellEffect spell t) (public player),
---                                         hand = delete (SingleTargetSpell spell) (hand player)
---                                       },
---                                       inactivePlayer = enemy {
---                                         public = replace t (spellEffect spell t) (public enemy)
---                                       }}
---                               else  error "Invalid spell target")
-
--- playMinion :: Minion -> Board -> Board
--- playMinion minion board = let p = activePlayer board
---                               p' = p { public = minion { mactive = False }  : public p
---                               , hand = delete (MinionCard minion) (hand p)
---                               , currentMana = currentMana p - mcost minion }
---                           in board { activePlayer = p'}
-
 minionAttack :: Minion -> Minion -> (Minion, Minion)
 minionAttack attacker target = ( damage attacker (mpower target)
                                , damage target (mpower attacker))
