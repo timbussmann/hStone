@@ -19,39 +19,35 @@ data UserInteraction =
 data Effect = 
   CreateMinion Minion | 
   TargetSpell (Board -> [Minion]) (Minion -> Minion)
+instance Show Effect where
+  show _ = "todo"
+instance Eq Effect where
+ x == y = False
 
 data Card = Card { 
   cname :: String,
   ccost :: Mana, 
   ceffect :: Effect 
   } deriving(Show)
-
 instance Eq Card where
   x == y = cname x == cname y
 
-data Minion = Minion {  mname :: String
-                      , mpower :: Power
-                      , mhealth :: Health
-                      , mactive :: Bool } deriving(Show, Eq)
+data Minion = Minion {  
+  mname :: String,
+  mpower :: Power,
+  mhealth :: Health,
+  mactive :: Bool 
+  } deriving(Show, Eq)
 
-data Hero = Hero { heroPower :: Power
-                 , heroHealth :: Health } deriving(Show, Eq)
+data Hero = Hero { 
+  heroPower :: Power,
+  heroHealth :: Health 
+  } deriving(Show, Eq)
 
-data Target = MinionTarget Minion | HeroTarget Hero deriving(Show, Eq)
-
-data AlliedTargetSpell = AlliedTargetSpell  { spellName :: String
-                                            , spellCost :: Mana
-                                            , spellEffect :: Minion -> Minion
-                                            , validTargets :: Board -> [Minion]}
-instance Eq AlliedTargetSpell where
-  x == y = spellName x == spellName y
-instance Show AlliedTargetSpell where
-  show = spellName
-
-instance Show Effect where
-  show _ = "todo"
-instance Eq Effect where
- x == y = False
+data Target = 
+  MinionTarget Minion | 
+  HeroTarget Hero 
+  deriving(Show, Eq)
 
 data Player = Player { name        :: String
                      , hand        :: [Card]
