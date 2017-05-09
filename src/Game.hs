@@ -12,15 +12,19 @@ module Game where
 
 import           Data.List
 
-data UserInteraction = None Board | SelectSingleTarget [Minion] (Minion -> Board)
-data Effect = CreateMinion Minion | TargetSpell (Board -> [Minion]) (Minion -> Minion)
+data UserInteraction = 
+  None Board | 
+  SelectSingleTarget [Minion] (Minion -> Board)
+
+data Effect = 
+  CreateMinion Minion | 
+  TargetSpell (Board -> [Minion]) (Minion -> Minion)
+
 data NewCard = NewCard  { cname :: String 
                         , ccost :: Mana
                         , ceffect :: Effect } deriving(Show)
 instance Eq NewCard where
   x == y = cname x == cname y
-
-data Card = MinionCard Minion | SingleTargetSpell AlliedTargetSpell deriving(Show, Eq)
 
 data Minion = Minion {  mname :: String
                       , mpower :: Power
@@ -122,9 +126,6 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
 --                               , hand = delete (MinionCard minion) (hand p)
 --                               , currentMana = currentMana p - mcost minion }
 --                           in board { activePlayer = p'}
-
-minionFromCard :: Card -> Minion
-minionFromCard (MinionCard minion) = minion { mactive = False }
 
 minionAttack :: Minion -> Minion -> (Minion, Minion)
 minionAttack attacker target = ( damage attacker (mpower target)
