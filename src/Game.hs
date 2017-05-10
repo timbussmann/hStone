@@ -7,7 +7,7 @@
 
 -- Card -> (CardInfo, Effect)
 -- don't expose boardAction, expose specific operations using boardAction internally?
-        
+   
 module Game where
 
 import           Data.List
@@ -64,28 +64,29 @@ type Mana = Int
 type Power = Int
 type Health = Int
 
+
 boardAction :: Board -> (Board -> Board) -> (Board, Maybe Player)
 boardAction board action = let b' = removeDeadMinions (action board)
                            in (b', evaluateWinner b')
+  where
+    removeDeadMinions :: Board -> Board
+    removeDeadMinions board = let ap = activePlayer board
+                                  iap = inactivePlayer board
+                                  activePlayerCards = public ap
+                                  inactivePlayerCards = public iap
+                              in board {
+                                activePlayer = ap { public = removeDead activePlayerCards },
+                                inactivePlayer = iap { public = removeDead inactivePlayerCards }
+                              }
+                              where removeDead = filter (\m -> mhealth m > 0)
+    evaluateWinner :: Board -> Maybe Player
+    evaluateWinner b
+      | heroHealth (hero p2) <= 0 = Just p1
+      | heroHealth (hero p1) <= 0 = Just p2
+      | otherwise = Nothing
+      where p1 = activePlayer b
+            p2 = inactivePlayer b
 
-removeDeadMinions :: Board -> Board
-removeDeadMinions board = let ap = activePlayer board
-                              iap = inactivePlayer board
-                              activePlayerCards = public ap
-                              inactivePlayerCards = public iap
-                          in board {
-                            activePlayer = ap { public = removeDead activePlayerCards },
-                            inactivePlayer = iap { public = removeDead inactivePlayerCards }
-                          }
-                          where removeDead = filter (\m -> mhealth m > 0)
-
-evaluateWinner :: Board -> Maybe Player
-evaluateWinner b
-  | heroHealth (hero p2) <= 0 = Just p1
-  | heroHealth (hero p1) <= 0 = Just p2
-  | otherwise = Nothing
-  where p1 = activePlayer b
-        p2 = inactivePlayer b
 
 playCard :: Card -> Board -> UserInteraction
 playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card)) board
@@ -110,6 +111,7 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
 
         removeFromHand card board = let p = activePlayer board in board { activePlayer = p { hand = delete card (hand p)}}
 
+
 attack :: Minion -> Board -> ([Target], Target -> Board)
 attack attacker (Board activePlayer enemyPlayer) =
   let heroTarget = HeroTarget (hero enemyPlayer)
@@ -131,23 +133,16 @@ attack attacker (Board activePlayer enemyPlayer) =
     updatePublicCards player original new = player { public = replace original new (public player) }
     updateHero player new = player { hero = new }
 
-minionAttack :: Minion -> Minion -> (Minion, Minion)
-minionAttack attacker target = ( damage attacker (mpower target)
-                               , damage target (mpower attacker))
+    minionAttack :: Minion -> Minion -> (Minion, Minion)
+    minionAttack attacker target = ( damage attacker (mpower target)
+                                  , damage target (mpower attacker))
 
-minionHeroAttack :: Minion -> Hero -> (Minion, Hero)
-minionHeroAttack minion hero = ( damage minion (heroPower hero)
-                               , hero { heroHealth = heroHealth hero - mpower minion})
+    minionHeroAttack :: Minion -> Hero -> (Minion, Hero)
+    minionHeroAttack minion hero = ( damage minion (heroPower hero)
+                                  , hero { heroHealth = heroHealth hero - mpower minion})
 
-damage target d = target { mhealth = mhealth target - d }
+    damage target d = target { mhealth = mhealth target - d }
 
-replace :: (Eq a) => a -> a -> [a] -> [a]
-replace search new = map (\x -> if x == search then new else x)
-
-removeHp :: Player -> Int -> Player
-removeHp player x = let h = hero player
-                        h' = h { heroHealth = heroHealth h - x}
-                    in player { hero = h' }
 
 endTurn :: Board -> Board
 endTurn board = Board ((activateMinions . refreshCurrentMana . increaseTotalMana . drawDeckCard) $ inactivePlayer board) (activePlayer board)
@@ -160,3 +155,13 @@ endTurn board = Board ((activateMinions . refreshCurrentMana . increaseTotalMana
                           in if newHand == hand player then removeHp player' 4 else player'
                           where tryMove [] dest = ([], dest)
                                 tryMove (x:xs) dest = (xs, x:dest)
+
+
+replace :: (Eq a) => a -> a -> [a] -> [a]
+replace search new = map (\x -> if x == search then new else x)
+
+removeHp :: Player -> Int -> Player
+removeHp player x = let h = hero player
+                        h' = h { heroHealth = heroHealth h - x}
+                    in player { hero = h' }
+
