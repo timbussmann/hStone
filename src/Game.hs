@@ -162,9 +162,3 @@ drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand playe
                       in if newHand == hand player then removeHp player' 4 else player'
                       where tryMove [] dest = ([], dest)
                             tryMove (x:xs) dest = (xs, x:dest)
-
-action :: Board -> (Board -> Board) -> Either Player Board
-action board action =
-  let newBoard = action board
-      winner = evaluateWinner newBoard
-  in maybe (Right newBoard) Left winner

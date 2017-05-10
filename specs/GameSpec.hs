@@ -142,19 +142,22 @@ spec = do
       let board = createBoard
       let modification b = b { activePlayer = (activePlayer b) { hero = Hero 0 42 }}
 
-      let Right result = action board modification
+      let (resultBoard, winner) = boardAction board modification
 
       it "returns the modified board" $
-        result `shouldBe` modification board
+        resultBoard `shouldBe` modification board
+
+      it "has no winner" $
+        winner `shouldBe` Nothing
 
     describe "when game finished" $ do
       let board = createBoard
       let modification b = b { activePlayer = (activePlayer b){ hero = Hero 0 0 } }
 
-      let Left result = action board modification
+      let (resultBoard, winner) = boardAction board modification
 
       it "returns the winner" $
-        result `shouldBe` inactivePlayer board
+        winner `shouldBe` Just (inactivePlayer board)
 
 playMinion :: Card -> Board -> Board
 playMinion minionCard board = handleMinionInteraction (playCard minionCard board)
