@@ -102,40 +102,40 @@ spec = do
                     { activePlayer = createPlayer { name = "p1", hero = Hero 0 1 }
                     , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 30 }}
 
-      let result = evaluateWinner board
+      let (board', winner) = boardAction board id
 
       it "continues the game" $
-        result `shouldBe` Nothing
+        winner `shouldBe` Nothing
 
     describe "when active player has no more health" $ do
       let board = Board
                     { activePlayer = createPlayer { name = "p1", hero = Hero 0 0 }
                     , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 30 }}
 
-      let result = evaluateWinner board
+      let (board', winner) = boardAction board id
 
       it "inactive player wins the game" $
-        result `shouldBe` Just (inactivePlayer board)
+        winner `shouldBe` Just (inactivePlayer board)
 
     describe "when inactive player has no more health" $ do
       let board = Board
                     { activePlayer = createPlayer { name = "p1", hero = Hero 0 1 }
                     , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 (-1) }}
 
-      let result = evaluateWinner board
+      let (board', winner) = boardAction board id
 
       it "active player wins the game" $
-        result `shouldBe` Just (activePlayer board)
+        winner `shouldBe` Just (activePlayer board)
 
     describe "when both players have no more health" $ do
       let board = Board
                     { activePlayer = createPlayer { name = "p1", hero = Hero 0 (-3) }
                     , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 (-5) }}
 
-      let result = evaluateWinner board
+      let (board', winner) = boardAction board id
 
       it "active player wins the game" $
-        result `shouldBe` Just (activePlayer board)
+        winner `shouldBe` Just (activePlayer board)
 
   describe "making an action" $ do
     describe "when game not finished" $ do
