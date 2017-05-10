@@ -155,10 +155,8 @@ endTurn board = Board ((activateMinions . refreshCurrentMana . increaseTotalMana
     activateMinions player = player { public = map (\c -> c { mactive = True }) (public player) }
     refreshCurrentMana player = player { currentMana = totalMana player }
     increaseTotalMana player = player { totalMana = totalMana player + 1 }
-
-drawDeckCard :: Player -> Player
-drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand player)
-                          player' = player { hand = newHand , deck = newDeck }
-                      in if newHand == hand player then removeHp player' 4 else player'
-                      where tryMove [] dest = ([], dest)
-                            tryMove (x:xs) dest = (xs, x:dest)
+    drawDeckCard player = let (newDeck, newHand) = tryMove (deck player) (hand player)
+                              player' = player { hand = newHand , deck = newDeck }
+                          in if newHand == hand player then removeHp player' 4 else player'
+                          where tryMove [] dest = ([], dest)
+                                tryMove (x:xs) dest = (xs, x:dest)
