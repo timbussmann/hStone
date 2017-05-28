@@ -1,6 +1,7 @@
 module Cli where
 
 import           Control.Monad
+import           Control.Monad.Trans
 import           Control.Monad.State
 import           Data.List.Split
 import           Game
@@ -43,6 +44,30 @@ checkForWinner x@(Just (b, Just p)) = do
     announceWinner w = putStrLn $ printf "Player %s wins!" (name w)
 checkForWinner x = return (True, maybe Nothing (Just . fst) x)
 
+-- todo use: playCard instead of current put implementation
+handleBoard :: [String] -> State Board (Maybe Player)
+handleBoard ("end":_) = do
+  winner <- boardAction endTurn
+  board <- get
+  -- need to use type BoardState = StateT Board IO. Binds state to IO and allows lifting to IO.
+  -- doesn't make to use StateT x IO in game itself, as it leaks IO into the game logic.
+  liftIO (putStrLn $ printf "%s's turn!" (name $ activePlayer board))
+  return winner
+handleBoard ("put":cardId:_) = do
+  b <- get
+  let cardToPlay = getCardById b cardId
+  liftIO $ putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
+  boardAction (handleUserInteraction . playCard cardToPlay)
+handleBoard ("attack":attackerId:_) = do
+  b <- get
+  let attacker = getMinionById b attackerId
+  let attackAction = attack attacker b
+  liftIO $ putStrLn "select target:"
+  liftIO $ forM_ (fst attackAction) printTarget
+  targetIndex <- liftIO $ getChar >>= \c -> return (digitToInt c)
+  boardAction (\board -> snd (attack attacker board) (fst attackAction !! targetIndex))
+handleBoard _ = return Nothing -- fallback
+
 handle :: Maybe Board -> [String] -> IO (Maybe (Board, Maybe Player))
 handle b ("":_) = return (b >>= \x -> Just (x, Nothing))
 handle b ("help":_) = do
@@ -63,23 +88,6 @@ handle Nothing _ = do
 handle (Just board) ("board":_) = do
   printBoard board
   return $ Just (board, Nothing)
-handle (Just b) ("end":_) = do
-  let b' = boardAction b endTurn
-  putStrLn $ printf "%s's turn!" (name $ activePlayer $ fst b')
-  return $ Just b'
-handle (Just b) ("put":cardId:_) = do
-  let cardToPlay = getCardById b cardId
-  putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
-  let b' =  boardAction b (handleUserInteraction . playCard cardToPlay)
-  return $ Just b'
-handle (Just b) ("attack":attackerId:_) = do
-  let attacker = getMinionById b attackerId
-  let attackAction = attack attacker b
-  putStrLn "select target:"
-  forM_ (fst attackAction) printTarget
-  targetIndex <- getChar >>= \c -> return (digitToInt c)
-  let b' = boardAction b (\board -> snd (attack attacker board) (fst attackAction !! targetIndex))
-  return $ Just b'
 handle b (c:_) = do
   putStrLn $ printf "unknown command \"%s\". Type \"help\" to list available commands." c
   return (b >>= (\x -> Just (x, Nothing)))
