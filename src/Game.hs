@@ -11,6 +11,7 @@
 module Game where
 
 import           Data.List
+import           Control.Monad.State
 
 data UserInteraction = 
   None Board | 
@@ -64,28 +65,37 @@ type Mana = Int
 type Power = Int
 type Health = Int
 
+-- with state Monad:
+boardAction :: (Board -> Board) -> State Board (Maybe Player)
+boardAction action = do
+  b <- get
+  let b' = removeDeadMinions (action b)
+  put b'
+  return $ evaluateWinner b'
 
-boardAction :: Board -> (Board -> Board) -> (Board, Maybe Player)
-boardAction board action = let b' = removeDeadMinions (action board)
-                           in (b', evaluateWinner b')
-  where
-    removeDeadMinions :: Board -> Board
-    removeDeadMinions board = let ap = activePlayer board
-                                  iap = inactivePlayer board
-                                  activePlayerCards = public ap
-                                  inactivePlayerCards = public iap
-                              in board {
-                                activePlayer = ap { public = removeDead activePlayerCards },
-                                inactivePlayer = iap { public = removeDead inactivePlayerCards }
-                              }
-                              where removeDead = filter (\m -> mhealth m > 0)
-    evaluateWinner :: Board -> Maybe Player
-    evaluateWinner b
-      | heroHealth (hero p2) <= 0 = Just p1
-      | heroHealth (hero p1) <= 0 = Just p2
-      | otherwise = Nothing
-      where p1 = activePlayer b
-            p2 = inactivePlayer b
+-- without State Monad:
+-- boardAction :: Board -> (Board -> Board) -> (Board, Maybe Player)
+-- boardAction board action = let b' = removeDeadMinions (action board)
+--                            in (b', evaluateWinner b')
+
+removeDeadMinions :: Board -> Board
+removeDeadMinions board = let ap = activePlayer board
+                              iap = inactivePlayer board
+                              activePlayerCards = public ap
+                              inactivePlayerCards = public iap
+                          in board {
+                            activePlayer = ap { public = removeDead activePlayerCards },
+                            inactivePlayer = iap { public = removeDead inactivePlayerCards }
+                          }
+                          where removeDead = filter (\m -> mhealth m > 0)
+
+evaluateWinner :: Board -> Maybe Player
+evaluateWinner b
+  | heroHealth (hero p2) <= 0 = Just p1
+  | heroHealth (hero p1) <= 0 = Just p2
+  | otherwise = Nothing
+  where p1 = activePlayer b
+        p2 = inactivePlayer b
 
 
 playCard :: Card -> Board -> UserInteraction
