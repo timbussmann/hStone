@@ -88,18 +88,17 @@ printBoard :: Board -> IO ()
 printBoard b = do
   let p1 = activePlayer b
   let p2 = inactivePlayer b
-  putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (heroHealth (hero p1)) (currentMana p1) (totalMana p1)
+  putStrLn $ printf "You (%s): %d HP, %d/%d Mana" (name p1) (mhealth (hero p1)) (currentMana p1) (totalMana p1)
   putStrLn "Hand:"
   printCards (hand p1) handPrefix
   putStrLn "Public:"
   printMinions (public p1) playerPublicPrefix
-  putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (heroHealth (hero p2)) (currentMana p2) (totalMana p2)
+  putStrLn $ printf "Enemy (%s): %d HP, %d/%d Mana" (name p2) (mhealth (hero p2)) (currentMana p2) (totalMana p2)
   putStrLn "Public:"
   printMinions (public p2) enemyPublicPrefix
 
-printTarget :: Target -> IO ()
-printTarget (MinionTarget minion) = putStrLn $ printf "%s %d HP %d AP" (mname minion) (mhealth minion) (mpower minion)
-printTarget (HeroTarget hero) = putStrLn $ printf "Hero %d HP %d AP" (heroHealth hero) (heroPower hero)
+printTarget :: Minion -> IO ()
+printTarget minion = putStrLn $ printf "%s %d HP %d AP" (mname minion) (mhealth minion) (mpower minion)
 
 printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
@@ -145,13 +144,13 @@ createNewBoard =
                       , deck = reverse cards
                     , totalMana = 0
                     , currentMana= 0
-                    , hero = Hero 0 5 };
+                    , hero = Minion "Hero player1" 0 5 False };
     player2 = Player { name = "player2"
                       , hand = []
                       , public = []
                       , deck = reverse cards
                     , totalMana = 0
                     , currentMana= 0
-                    , hero = Hero 0 5 };
+                    , hero = Minion "Hero player2" 0 5 False };
   }
   in Board player1 player2

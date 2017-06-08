@@ -83,11 +83,11 @@ spec = do
     let result'' = endTurn result'
 
     it "damages the player when his turn begins" $ do
-      (heroHealth . hero . activePlayer) result `shouldBe` (heroHealth . hero . inactivePlayer) board - 4
+      (mhealth . hero . activePlayer) result `shouldBe` (mhealth . hero . inactivePlayer) board - 4
       -- no damage on other player's turn
-      (heroHealth . hero . inactivePlayer) result' `shouldBe` (heroHealth . hero . activePlayer) result
+      (mhealth . hero . inactivePlayer) result' `shouldBe` (mhealth . hero . activePlayer) result
       -- players turn again
-      (heroHealth . hero . activePlayer) result'' `shouldBe` (heroHealth . hero . inactivePlayer) board - 8
+      (mhealth . hero . activePlayer) result'' `shouldBe` (mhealth . hero . inactivePlayer) board - 8
 
     it "doubles damage on every turn"
       pending -- requires an additional state therefore I keep it simple for now
@@ -99,8 +99,8 @@ spec = do
   describe "evaluating a winner" $ do
     describe "when both players still have healthpoints" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Hero 0 1 }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 30 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Minion "hero" 0 1 False }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Minion "hero" 0 30 False }}
 
       let (board', winner) = boardAction board id
 
@@ -109,8 +109,8 @@ spec = do
 
     describe "when active player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Hero 0 0 }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 30 }}
+                    { activePlayer = createPlayer { name = "p1", hero = Minion "hero" 0 0 False }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Minion "hero" 0 30 False }}
 
       let (board', winner) = boardAction board id
 
@@ -119,8 +119,8 @@ spec = do
 
     describe "when inactive player has no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Hero 0 1 }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 (-1) }}
+                    { activePlayer = createPlayer { name = "p1", hero = Minion "hero" 0 1 False }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Minion "hero" 0 (-1) False }}
 
       let (board', winner) = boardAction board id
 
@@ -129,8 +129,8 @@ spec = do
 
     describe "when both players have no more health" $ do
       let board = Board
-                    { activePlayer = createPlayer { name = "p1", hero = Hero 0 (-3) }
-                    , inactivePlayer = createPlayer { name = "p2", hero = Hero 0 (-5) }}
+                    { activePlayer = createPlayer { name = "p1", hero = Minion "hero" 0 (-3) False }
+                    , inactivePlayer = createPlayer { name = "p2", hero = Minion "hero" 0 (-5) False }}
 
       let (board', winner) = boardAction board id
 
@@ -140,7 +140,7 @@ spec = do
   describe "making an action" $ do
     describe "when game not finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b) { hero = Hero 0 42 }}
+      let modification b = b { activePlayer = (activePlayer b) { hero = Minion "hero" 0 42 False }}
 
       let (resultBoard, winner) = boardAction board modification
 
@@ -152,7 +152,7 @@ spec = do
 
     describe "when game finished" $ do
       let board = createBoard
-      let modification b = b { activePlayer = (activePlayer b){ hero = Hero 0 0 } }
+      let modification b = b { activePlayer = (activePlayer b){ hero = Minion "hero" 0 0 False } }
 
       let (resultBoard, winner) = boardAction board modification
 

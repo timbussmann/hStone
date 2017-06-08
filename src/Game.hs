@@ -39,21 +39,11 @@ data Minion = Minion {
   mactive :: Bool 
   } deriving(Show, Eq)
 
-data Hero = Hero { 
-  heroPower :: Power,
-  heroHealth :: Health 
-  } deriving(Show, Eq)
-
-data Target = 
-  MinionTarget Minion | 
-  HeroTarget Hero 
-  deriving(Show, Eq)
-
 data Player = Player { name        :: String
                      , hand        :: [Card]
                      , public      :: [Minion]
                      , deck        :: [Card]
-                     , hero        :: Hero
+                     , hero        :: Minion
                      , totalMana   :: Mana
                      , currentMana :: Mana } deriving(Show, Eq)
 
@@ -81,8 +71,8 @@ boardAction board action = let b' = removeDeadMinions (action board)
                               where removeDead = filter (\m -> mhealth m > 0)
     evaluateWinner :: Board -> Maybe Player
     evaluateWinner b
-      | heroHealth (hero p2) <= 0 = Just p1
-      | heroHealth (hero p1) <= 0 = Just p2
+      | mhealth (hero p2) <= 0 = Just p1
+      | mhealth (hero p1) <= 0 = Just p2
       | otherwise = Nothing
       where p1 = activePlayer b
             p2 = inactivePlayer b
@@ -112,34 +102,27 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
         removeFromHand card board = let p = activePlayer board in board { activePlayer = p { hand = delete card (hand p)}}
 
 
-attack :: Minion -> Board -> ([Target], Target -> Board)
+attack :: Minion -> Board -> ([Minion], Minion -> Board)
 attack attacker (Board activePlayer enemyPlayer) =
-  let heroTarget = HeroTarget (hero enemyPlayer)
-      minionTargets = map MinionTarget (public enemyPlayer)
+  let heroTarget = hero enemyPlayer
+      minionTargets = public enemyPlayer
   in (heroTarget : minionTargets, targetSelected)
   where
-    targetSelected (MinionTarget target) =
-      if target `elem` public enemyPlayer
-      then
+    targetSelected target
+      | target `elem` public enemyPlayer =
         let (a, t) = minionAttack attacker target
         in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
-      else error "Invalid target"
-    targetSelected (HeroTarget target) =
-      if target == hero enemyPlayer
-      then
-        let (a, t) = minionHeroAttack attacker target
+      | target == hero enemyPlayer =
+        let (a, t) = minionAttack attacker target
         in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updateHero enemyPlayer t)
-      else error "Invalid target"
+      | otherwise = error "Invalid target"
+
     updatePublicCards player original new = player { public = replace original new (public player) }
     updateHero player new = player { hero = new }
 
     minionAttack :: Minion -> Minion -> (Minion, Minion)
     minionAttack attacker target = ( damage attacker (mpower target)
                                   , damage target (mpower attacker))
-
-    minionHeroAttack :: Minion -> Hero -> (Minion, Hero)
-    minionHeroAttack minion hero = ( damage minion (heroPower hero)
-                                  , hero { heroHealth = heroHealth hero - mpower minion})
 
     damage target d = target { mhealth = mhealth target - d }
 
@@ -162,6 +145,6 @@ replace search new = map (\x -> if x == search then new else x)
 
 removeHp :: Player -> Int -> Player
 removeHp player x = let h = hero player
-                        h' = h { heroHealth = heroHealth h - x}
+                        h' = h { mhealth = mhealth h - x}
                     in player { hero = h' }
 
