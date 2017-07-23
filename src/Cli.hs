@@ -141,14 +141,14 @@ createNewBoard =
     player1 = Player { name = "player1"
                       , hand = []
                       , public = []
-                      , deck = reverse cards
+                      , deck = reverse minions
                     , totalMana = 0
                     , currentMana= 0
                     , hero = Minion "Hero player1" 0 5 False };
     player2 = Player { name = "player2"
                       , hand = []
                       , public = []
-                      , deck = reverse cards
+                      , deck = reverse minions
                     , totalMana = 0
                     , currentMana= 0
                     , hero = Minion "Hero player2" 0 5 False };
