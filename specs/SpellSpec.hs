@@ -43,3 +43,19 @@ spec = do
       length (public $ inactivePlayer result) `shouldBe` 2 -- should remove targeted card
       mname (head $ public $ inactivePlayer result) `shouldBe` "4 ap"
       mname (last $ public $ inactivePlayer result) `shouldBe` "6 ap"
+
+  describe "Arcane Intellect" $ do
+    let spellCard = fromJust $ find (\(Card name _ _) -> name == "Arcane Intellect") spells
+    let deckCard1 = Card "deckCard1" 1 NoEffect
+    let deckCard2 = Card "deckCard2" 2 NoEffect
+    let deckCard3 = Card "deckCard3" 3 NoEffect
+    let board = Board
+                  createPlayer { hand = [spellCard], deck = [deckCard1, deckCard2, deckCard3] }
+                  createPlayer
+    let (None b') = playCard spellCard board
+    let result = fst $ boardAction board $ const b'
+
+    it "should draw first two cards" $ do
+      length (hand $ activePlayer result) `shouldBe` 2
+      deckCard1 `shouldSatisfy` (`elem` (hand $ activePlayer result))
+      deckCard2 `shouldSatisfy` (`elem` (hand $ activePlayer result))

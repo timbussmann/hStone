@@ -7,6 +7,7 @@
 
 -- Card -> (CardInfo, Effect)
 -- don't expose boardAction, expose specific operations using boardAction internally?
+--TODO: checka available mana when playing cards
    
 module Game where
 
@@ -18,7 +19,10 @@ data UserInteraction =
 
 data Effect = 
   CreateMinion Minion | 
-  TargetSpell (Board -> [Minion]) (Minion -> Minion)
+  TargetSpell (Board -> [Minion]) (Minion -> Minion) |
+  Spell (Board -> Board) |
+  NoEffect
+
 instance Show Effect where
   show _ = "todo"
 instance Eq Effect where
@@ -96,6 +100,8 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
                                                                   inactivePlayer = (inactivePlayer board) { public = replace target target' (public . inactivePlayer $ board)}
                                                                   }
                                                           else error "Invalid spell target")
+        handleEffect board (Spell application) = None (application board)
+        handleEffect board NoEffect = None board
 
         removeSpellCost mana board = let p = activePlayer board in board { activePlayer = p { currentMana = currentMana p - ccost card}}
 
