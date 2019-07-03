@@ -15,12 +15,13 @@ cabal-version:       >=1.10
 
 executable cli
   main-is:             main.hs
-  build-depends:       base >=4.7 && <4.8, QuickCheck, split, mtl
+  build-depends:       base >=4.11 && <4.12, QuickCheck, split, mtl
   hs-source-dirs:      src
+  other-modules:       Game, Cards, Cli
   default-language:    Haskell2010
 
 executable tests
   main-is: Specs.hs
-  build-depends:      base >=4.7 && <4.8, hspec, QuickCheck
+  build-depends:      base >=4.11 && <4.12, hspec, QuickCheck
   hs-source-dirs:     src, specs
   default-language:   Haskell2010
