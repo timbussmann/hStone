@@ -94,6 +94,25 @@ spec = do
     it "reduces attacker's health by hero's power" $
       (mhealth . head . public) player1 `shouldBe` mhealth attacker - (mpower . hero) targetPlayer
 
+  describe "when attacking one of multiple equal minions" $ do
+    let attacker = Minion "attacker" 1 6 True
+    let targets = [ Minion "minionA" 0 5 True
+                  , Minion "minionA" 0 5 True
+                  , Minion "minionA" 0 5 True ]
+    let board = Board
+                  (createPlayer  { public = [attacker] })
+                  (createPlayer { public = targets })
+
+    let action = attack attacker board
+    let (Board player1 player2) = snd action (fst action!!1)
+
+    it "attacks selected minion" $
+        mhealth (public player2 !! 1) `shouldBe` 4
+    it "ignores other minions" $ do
+        let m0 = mhealth (public player2 !! 0)
+        let m2 = mhealth (public player2 !! 2)
+        (m0, m2) `shouldBe` (5, 5)
+
   describe "Ally targeting spells" $ do
     describe "when playing spell on own minion" $ do
       let target = Minion "target minion" 1 1 True
