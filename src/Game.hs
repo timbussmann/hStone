@@ -4,10 +4,11 @@
 --TODO: save/load game
 --TODO: bug: when having same spelltarget minion multiple times (or both players) it applies to both
         -- > make cards unique
+        -- > same with attacker
 
 -- Card -> (CardInfo, Effect)
 -- don't expose boardAction, expose specific operations using boardAction internally?
---TODO: checka available mana when playing cards
+-- TODO: check available mana when playing cards
    
 module Game where
 
@@ -108,29 +109,27 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
         removeFromHand card board = let p = activePlayer board in board { activePlayer = p { hand = delete card (hand p)}}
 
 
-attack :: Minion -> Board -> ([Minion], Minion -> Board)
-attack attacker (Board activePlayer enemyPlayer) =
-  let heroTarget = hero enemyPlayer
-      minionTargets = public enemyPlayer
-  in (heroTarget : minionTargets, targetSelected)
-  where
-    targetSelected target
-      | target `elem` public enemyPlayer =
-        let (a, t) = minionAttack attacker target
-        in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updatePublicCards enemyPlayer target t)
-      | target == hero enemyPlayer =
-        let (a, t) = minionAttack attacker target
-        in Board (updatePublicCards activePlayer attacker (a { mactive = False})) (updateHero enemyPlayer t)
-      | otherwise = error "Invalid target"
+attack :: Int -> Int -> Board -> Board
+attack attackerIndex targetIndex (Board activePlayer enemyPlayer) =
+    let target = public enemyPlayer !! targetIndex
+        attacker = public activePlayer !! attackerIndex
+        (a, t) = minionAttack attacker target
+    in Board (updatePublicCards activePlayer attackerIndex (a { mactive = False})) (updatePublicCards enemyPlayer targetIndex t)
 
-    updatePublicCards player original new = player { public = replace original new (public player) }
-    updateHero player new = player { hero = new }
+updatePublicCards :: Player -> Int -> Minion -> Player
+updatePublicCards player index new = player { public = replaceAt (public player) index new  }
 
-    minionAttack :: Minion -> Minion -> (Minion, Minion)
-    minionAttack attacker target = ( damage attacker (mpower target)
-                                  , damage target (mpower attacker))
+minionAttack :: Minion -> Minion -> (Minion, Minion)
+minionAttack attacker target = ( damage attacker (mpower target)
+                                , damage target (mpower attacker))
 
-    damage target d = target { mhealth = mhealth target - d }
+damage target d = target { mhealth = mhealth target - d }
+
+attackHero :: Int -> Board -> Board
+attackHero attackerIndex (Board activePlayer enemyPlayer) =
+    let attacker = public activePlayer !! attackerIndex
+        (a, t) = minionAttack attacker (hero enemyPlayer)
+    in Board (updatePublicCards activePlayer attackerIndex (a { mactive = False})) (enemyPlayer { hero = t })
 
 
 endTurn :: Board -> Board
@@ -148,6 +147,11 @@ endTurn board = Board ((activateMinions . refreshCurrentMana . increaseTotalMana
 
 replace :: (Eq a) => a -> a -> [a] -> [a]
 replace search new = map (\x -> if x == search then new else x)
+
+replaceAt :: [a] -> Int -> a -> [a]
+replaceAt original index new =
+    let (before, after) = splitAt index original
+    in before ++ [new] ++ tail after
 
 removeHp :: Player -> Int -> Player
 removeHp player x = let h = hero player
