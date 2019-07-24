@@ -122,8 +122,7 @@ updatePublicCards player index new = player { public = replaceAt (public player)
 minionAttack :: Minion -> Minion -> (Minion, Minion)
 minionAttack attacker target = ( damage attacker (mpower target)
                                 , damage target (mpower attacker))
-
-damage target d = target { mhealth = mhealth target - d }
+    where damage target d = target { mhealth = mhealth target - d }
 
 attackHero :: Int -> Board -> Board
 attackHero attackerIndex (Board activePlayer enemyPlayer) =
