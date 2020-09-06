@@ -24,4 +24,5 @@ executable tests
   main-is: Specs.hs
   build-depends:      base >=4.11 && <4.12, hspec, QuickCheck
   hs-source-dirs:     src, specs
+  other-modules:      Game, Cards, TestUtils, AttackingSpec, GameSpec, SpellSpec
   default-language:   Haskell2010
