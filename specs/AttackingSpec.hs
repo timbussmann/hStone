@@ -8,27 +8,6 @@ import Data.List
 
 spec :: Spec
 spec = do
-  describe "attacking with a minion" $ do
-    let attacker = Minion "attacker" 2 6 True
-    let targets = [ Minion "target1" 1 5 True
-                  , Minion "target2" 1 5 True
-                  , Minion "target3" 1 5 True ]
-    let board = Board
-                  (createPlayer  { public = [attacker] })
-                  (createPlayer { public = targets })
-
-    let action = attack attacker board
-
-    it "lists enemy minions as targets" $
-      fst action `shouldSatisfy` isInfixOf targets
-
-    it "lists enemy hero as target" $
-      fst action `shouldSatisfy` elem ((hero . inactivePlayer) board)
-
-    describe "attacking an invalid target" $
-      it "throws an exception" $
-        evaluate (snd action (Minion "invalid target" 1 1 True)) `shouldThrow` errorCall "Invalid target"
-
   describe "attacking a minion" $ do
     let attacker = Minion "attacker" 2 6 True
     let target = Minion "target" 1 5 True
@@ -36,7 +15,7 @@ spec = do
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = [target] })
 
-    let (Board player1 player2) = snd (attack attacker board) target
+    let (Board player1 player2) = attack 0 0 board
 
     it "reduces target's health by attacker's power" $
       (mhealth . head . public) player2 `shouldBe` mhealth target - mpower attacker
@@ -55,7 +34,7 @@ spec = do
                   (createPlayer { public = [attacker] })
                   (createPlayer { public = [target, otherCard] })
 
-    let (Board player1 player2) = snd (attack attacker board) target
+    let (Board player1 player2) = attack 0 0 board
 
     it "removes attacked minion from the owner's board" $
       public player2 `shouldSatisfy` notElem target
@@ -71,7 +50,7 @@ spec = do
                     (createPlayer { public = [attacker, otherCard] })
                     (createPlayer { public = [target] })
 
-    let (Board player1 player2) = snd (attack attacker board) target
+    let (Board player1 player2) = attack 0 0 board
 
     it "removes attacking minion from the owner's board" $
       public player1 `shouldSatisfy` notElem target
@@ -86,7 +65,7 @@ spec = do
                     createPlayer { public = [attacker] }
                     targetPlayer
 
-    let (Board player1 player2) = snd (attack attacker board) (hero targetPlayer)
+    let (Board player1 player2) = attackHero 0 board
 
     it "reduces attacked hero's health" $
       (mhealth . hero) player2 `shouldBe` (mhealth . hero) targetPlayer - mpower attacker
@@ -103,8 +82,7 @@ spec = do
                   (createPlayer  { public = [attacker] })
                   (createPlayer { public = targets })
 
-    let action = attack attacker board
-    let (Board player1 player2) = snd action (fst action!!1)
+    let (Board player1 player2) = attack 0 1 board
 
     it "attacks selected minion" $
         mhealth (public player2 !! 1) `shouldBe` 4

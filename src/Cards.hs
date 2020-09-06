@@ -39,4 +39,3 @@ spells = [
   --AlliedTargetSpell "Divine Spirit" 2 (\m -> m { mhealth = mhealth m * 2}) (public . activePlayer),  -- destroy a minion with 5 power or more
   --AlliedTargetSpell "Shadow Word: Death" 3 (\m -> m { mhealth = 0 }) (\b -> filter (\m -> mpower m >= 5) (public $ inactivePlayer b)) --double a minion's health
   ]
-
