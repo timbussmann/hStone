@@ -98,10 +98,9 @@ printTarget minion = putStrLn $ printf "%s %d HP %d AP" (mname minion) (mhealth 
 
 printCards :: [Card] -> Char -> IO ()
 printCards [] _ = putStrLn "-"
-printCards cards prefix = foldM_
-  (\i minion -> putStrLn "todo")
-  ()
-  cards
+printCards cards prefix = forM_
+  (zip ([0..]::[Int]) cards)
+  (\(index, card) -> putStrLn $ printf "[%d] %s (Cost: %d)" index (cname card) (ccost card))
   --(\i (MinionCard minion) -> putStrLn (printf "[%c%d] %s %d HP %d AP" prefix i (mname minion) (mhealth minion) (mpower minion)) >>= \_ -> return (i + 1))
 
 printMinions :: [Minion] -> Char -> IO ()
