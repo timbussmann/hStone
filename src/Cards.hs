@@ -3,7 +3,7 @@ module Cards where
 import Game;
 
 minions = [
-  Card "Faceless Behemoth" 10 (CreateMinion (Minion "Faceless Behemoth" 10 10 False))
+  Card "Faceless Behemoth" 10 (CreateMinion (Minion "Faceless Behemoth" 10 10 False)),
   -- MinionCard (Minion "Captured Jormungar" 5 9 7 False),
   -- MinionCard (Minion "Core Hound" 9 5 7 False),
   -- MinionCard (Minion "Boulderfist Ogre" 6 7 7 False),
@@ -13,7 +13,7 @@ minions = [
   -- MinionCard (Minion "Blodfen Raptor" 3 2 2 False),
   -- MinionCard (Minion "River Crocolisk" 2 3 2 False),
   -- MinionCard (Minion "Murloc Raider" 2 1 1 False),
-  -- MinionCard (Minion "Wisp" 1 1 0 False)
+   Card "Wisp" 1 (CreateMinion (Minion "Wisp" 1 1 False))
   ]
 
 spells = [
