@@ -18,7 +18,7 @@ spec = do
                   createPlayer { public = [target], hand = [spellCard]}
                   createPlayer
 
-    let (SelectSingleTarget targets selector) = playCard spellCard board
+    let (SelectSingleTarget targets selector) = playCard 0 board
     let result = fst (boardAction board (\b -> selector $ head targets))
 
     it "should double target minions health" $
@@ -32,7 +32,7 @@ spec = do
     let board = Board
                   createPlayer { hand = [spellCard]}
                   createPlayer { public = [target4ap, target5ap, target6ap]}
-    let (SelectSingleTarget targets selector) = playCard spellCard board
+    let (SelectSingleTarget targets selector) = playCard 0 board
     
     it "should be applyable to enemy targets with more than 5 power" $ do
       length targets `shouldBe` 2
@@ -52,7 +52,7 @@ spec = do
     let board = Board
                   createPlayer { hand = [spellCard], deck = [deckCard1, deckCard2, deckCard3] }
                   createPlayer
-    let (None b') = playCard spellCard board
+    let (None b') = playCard 0 board
     let result = fst $ boardAction board $ const b'
 
     it "should draw first two cards" $ do

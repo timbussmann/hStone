@@ -67,10 +67,11 @@ handle (Just b) ("end":_) = do
   let b' = boardAction b endTurn
   putStrLn $ printf "%s's turn!" (name $ activePlayer $ fst b')
   return $ Just b'
-handle (Just b) ("put":cardId:_) = do
+handle (Just b) ("put":cardIdString:_) = do
+  let cardId = read cardIdString :: Int
   let cardToPlay = getCardById b cardId
   putStrLn $ printf "player %s plays card %s" (name (activePlayer b)) (show cardToPlay)
-  let b' =  boardAction b (handleUserInteraction . playCard cardToPlay)
+  let b' =  boardAction b (handleUserInteraction . playCard cardId)
   return $ Just b'
 handle (Just b) ("attack":attackerId:targetId:_) = do
     let attacker = read attackerId :: Int
@@ -110,12 +111,8 @@ printMinions minions prefix = foldM_
   (1 :: Int)
   minions
 
-getCardById :: Board -> String -> Card
-getCardById b identifier = let (prefix, index) = split identifier
-                           in getCards prefix !! (index - 1)
-                           where split (x:xs) = (x, read xs :: Int)
-                                 getCards x
-                                  | x == handPrefix = hand $ activePlayer b
+getCardById :: Board -> Int -> Card
+getCardById b id = hand (activePlayer b) !! id
 
 getMinionById :: Board -> String -> Minion
 getMinionById b identifier = let (prefix, index) = split identifier

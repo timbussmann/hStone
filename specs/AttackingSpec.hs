@@ -100,7 +100,7 @@ spec = do
                     createPlayer { public = [target], hand = [spellCard]}
                     createPlayer
 
-      let interaction = playCard spellCard board
+      let interaction = playCard 0 board
       let result = selectSpellTarget interaction target
 
       it "removes spell from the hand" $
@@ -120,7 +120,7 @@ spec = do
                     createPlayer { public = [Minion "other minion" 2 2 True], hand = [spellCard]}
                     createPlayer
 
-      let interaction = playCard spellCard board
+      let interaction = playCard 0 board
       let result = selectSpellTarget interaction target
 
       it "throws an exception" $

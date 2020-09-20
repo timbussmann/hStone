@@ -20,7 +20,7 @@ spec = do
                                , totalMana = 10 }
     let board = Board player1 createPlayer
 
-    let rBoard = fst (boardAction board (playMinion card))
+    let rBoard = fst (boardAction board (playMinion 0))
     let rPlayer = activePlayer rBoard
 
     it "places the card on the active player's board" $ do
@@ -159,6 +159,6 @@ spec = do
       it "returns the winner" $
         winner `shouldBe` Just (inactivePlayer board)
 
-playMinion :: Card -> Board -> Board
-playMinion minionCard board = handleMinionInteraction (playCard minionCard board)
+playMinion :: Int -> Board -> Board
+playMinion cardIndex board = handleMinionInteraction (playCard cardIndex board)
   where handleMinionInteraction (None board) = board

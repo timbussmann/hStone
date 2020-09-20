@@ -83,13 +83,14 @@ boardAction board action = let b' = removeDeadMinions (action board)
             p2 = inactivePlayer b
 
 
-playCard :: Card -> Board -> UserInteraction
-playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card)) board
-                      in handleEffect b $ ceffect card
+playCard :: Int -> Board -> UserInteraction
+playCard cardIndex board = do
+    let card = hand (activePlayer board) !! cardIndex
+    let b = (removeFromHand card . removeSpellCost (ccost card)) board
+    handleEffect b (ceffect card)
   where handleEffect board (CreateMinion minion) =  
           let p = activePlayer board
-              p' = p { public = minion { mactive = False } : public p
-            , hand = delete card (hand p) }
+              p' = p { public = minion { mactive = False } : public p }
           in None (board { activePlayer = p' })
 
         handleEffect board (TargetSpell selector application) = 
@@ -104,8 +105,8 @@ playCard card board = let b = (removeFromHand card . removeSpellCost (ccost card
         handleEffect board (Spell application) = None (application board)
         handleEffect board NoEffect = None board
 
-        removeSpellCost mana board = let p = activePlayer board in board { activePlayer = p { currentMana = currentMana p - ccost card}}
-
+        removeSpellCost mana board = let p = activePlayer board in board { activePlayer = p { currentMana = currentMana p - mana}}
+        -- TODO should use indexing instead of card because of potential ambiguity on duplicate cards
         removeFromHand card board = let p = activePlayer board in board { activePlayer = p { hand = delete card (hand p)}}
 
 
